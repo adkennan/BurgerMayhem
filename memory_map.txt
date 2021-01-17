@@ -1,0 +1,38 @@
+# $0000 - $00FF - Zero Page
+
+# $0800 - $08FF
+
+## $0801 - Basic Loader
+
+# $0900 - $9FFF
+
+## $0900 - Game Program
+
+# $2800 - $3FFF - Data
+
+## Level definitions
+
+## Kitchen Maps
+
+## Strings
+
+## Lookup tables
+
+# $4000 - $7FFF - Video bank
+
+## $4400 - $47F7 - Screen memory
+
+## $47F8 - $47FF - Sprite Pointers
+
+## $4800 - Sprite data
+
+## $6800 - Text Character data
+
+## $7800 - GFX Character data
+
+
+# $C000 - $C3E7 - Colour RAM copy
+
+# $D000 - $D02E - VIC Registers
+
+# $D800 - $DBE7 - Colour RAM

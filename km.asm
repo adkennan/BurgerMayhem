@@ -1,4 +1,5 @@
 
+incasm "macros.asm"
 incasm "sys_constants.asm"
 incasm "game_constants.asm"
 incasm "zero.asm"
@@ -57,9 +58,13 @@ incasm "player.asm"
 incasm "screen.asm"
 incasm "util.asm"
 
-incasm "lookup.asm"
-incasm "maps.asm"
+*=$2800
 incasm "levels.asm"
+incasm "maps.asm"
+incasm "strings.asm"
+incasm "lookup.asm"
 
+*=$4800
 incasm "sprites.asm"
+*=$6800
 incasm "chars.asm"

@@ -1,40 +1,4 @@
 
-defm    plda
-        ldy #/1
-        lda (P_PLAYER_LO),y
-        endm
-
-defm    pldy
-        ldy #/1
-        lda (P_PLAYER_LO),y
-        tay
-        endm
-
-defm    pldx
-        ldy #/1
-        lda (P_PLAYER_LO),y
-        tax
-        endm
-
-defm    psta
-        ldy #/1
-        sta (P_PLAYER_LO),y
-        endm
-
-defm    padc
-        ldy #/1
-        adc (P_PLAYER_LO),y
-        endm
-
-defm    psbc
-        ldy #/1
-        sbc (P_PLAYER_LO),y
-        endm
-
-defm    pcmp
-        ldy #/1
-        cmp (P_PLAYER_LO),y
-        endm
 
 RUN_PLAYER_1
         ldx #$0                 ; Store joystick to check in X
@@ -79,8 +43,9 @@ RUN_PLAYER
         jmp @done
 
 @no_msg
-
         jsr CHECK_JOYSTICK      
+
+        jsr LOOK_PLAYER
 
         lda P_BUTTON            ; Has the button state changed?
         pcmp PL_BUTTON
@@ -94,6 +59,10 @@ RUN_PLAYER
 
 @no_button_change
 
+        jsr BLOCK_PLAYER
+        cmp #$0
+        bne @done
+
         plda PL_ACTIVITY        ; What activity is the player performing?
         cmp #ACT_MOVE
         bne @is_chop
@@ -101,31 +70,24 @@ RUN_PLAYER
        
         jsr SLIDE_PLAYER        ; Are we on a slider?
         cmp #$0
-        bne @check_blocked
+        bne @is_chop
 
         lda L_TIME_TICKS        ; On every second frame...
         and #$1
         cmp #$0
-        beq @check_blocked
+        beq @is_chop
         jsr MOVE_PLAYER         ; ... move the player a second time
-        
-@check_blocked
-        jsr IS_BLOCKED          ; Are we stuck on a blocker?
-        jmp @done
+
 @is_chop
+        plda PL_ACTIVITY 
         cmp #ACT_CHOP
         bne @is_cook
         jsr CHOP_PLAYER         ; Chopping lettuce or tomato.
         jmp @done
 @is_cook
         cmp #ACT_COOK
-        bne @is_blocked
-        jsr COOK_PLAYER         ; Cooking a patty
-
-@is_blocked
-        cmp #ACT_BLOCKED
         bne @done
-        jsr BLOCKED_PLAYER
+        jsr COOK_PLAYER         ; Cooking a patty
 
 @done
         lda P_UPDATE_OBJECT      ; Do we need to update an object sprite?  
@@ -140,21 +102,123 @@ RUN_PLAYER
 @no_update
         rts
 
-BLOCKED_PLAYER
+BLOCK_PLAYER
+
+        lda P_L
+        tax
+        and #TILE_BLOCKER_0
+        cmp #$0
+        bne @on_blocker
+
+        lda P_M
+        tax
+        and #TILE_BLOCKER_0
+        cmp #$0
+        bne @on_blocker
+
+        lda P_R
+        tax
+        and #TILE_BLOCKER_0
+        cmp #$0
+        beq @not_blocked
+
+@on_blocker
+
+        txa
+        and #$3
+        tay
+        ldx LVL_BLOCK_STATE,y
+        lda BLOCKER_SEQ,x
+        beq @not_blocked
 
         lda #DIR_SHRUG
         psta PL_DIR
 
-        jsr IS_BLOCKED
+        lda #$1
 
-        plda PL_ACTIVITY
-        cmp #ACT_BLOCKED
-        beq @still_blocked
-                
+        rts
+
+@not_blocked
+        plda PL_DIR
+        cmp #DIR_SHRUG
+        bne @done
         lda #DIR_S
         psta PL_DIR
 
-@still_blocked
+@done
+        lda #$0
+
+        rts
+
+LOOK_PLAYER
+        jsr P_RESET_MAP_POS
+
+        ;ldx #$0
+;@loop
+;        ldy PLAYER_LOOK_OFFSET,x
+        
+;        lda (P_MAP_POS_LO),y
+;        sta P_LOOK_TILES,x
+
+        ;jsr SHOW_FOOT
+
+;        inx
+;        cpx #LOOK_OFFSET_SIZE
+;        bne @loop
+
+
+        ldy #0
+        lda (P_MAP_POS_LO),y
+        sta P_N_1
+
+        ldy #1
+        lda (P_MAP_POS_LO),y
+        sta P_N_2
+
+        ldy #2
+        lda (P_MAP_POS_LO),y
+        sta P_N_3
+
+        ldy #SCREEN_WIDTH - 1
+        lda (P_MAP_POS_LO),y
+        sta P_W_1
+
+        ldy #SCREEN_WIDTH + 3
+        lda (P_MAP_POS_LO),y
+        sta P_E_1
+
+        ldy #SCREEN_WIDTH_X2 - 1
+        lda (P_MAP_POS_LO),y
+        sta P_W_2
+
+        ldy #SCREEN_WIDTH_X2
+        lda (P_MAP_POS_LO),y
+        sta P_L
+
+        ldy #SCREEN_WIDTH_X2 + 1
+        lda (P_MAP_POS_LO),y
+        sta P_M
+
+        ldy #SCREEN_WIDTH_X2 + 2
+        lda (P_MAP_POS_LO),y
+        sta P_R
+
+        ldy #SCREEN_WIDTH_X2 + 3
+        lda (P_MAP_POS_LO),y
+        sta P_E_2
+
+        ldy #SCREEN_WIDTH_X3
+        lda (P_MAP_POS_LO),y
+        sta P_S_1
+
+        ldy #SCREEN_WIDTH_X3 + 1
+        lda (P_MAP_POS_LO),y
+        sta P_S_2
+
+        ldy #SCREEN_WIDTH_X3 + 2
+        lda (P_MAP_POS_LO),y
+        sta P_S_3
+
         rts
 
 MOVE_PLAYER
@@ -195,6 +259,7 @@ MOVE_PLAYER
         jsr P_MOVE_S
 
 @update_frame
+
         plda PL_FRAME_COUNT     ; Is it time to change the chef's frame?
         clc 
         adc #$1
@@ -307,12 +372,7 @@ P_BUTTON_CHANGE
         rts
 
 @button_up  
-        lda #ACT_BLOCKED
-        pcmp PL_ACTIVITY
-        bne @is_moving
-        rts
 
-@is_moving
         lda #ACT_MOVE           ; If the chef was chopping or cooking
         pcmp PL_ACTIVITY        ; switch back to moving
         beq @act_moving        
@@ -329,7 +389,7 @@ P_BUTTON_CHANGE
         jsr P_GET_ACTIVITY_TILE ; What are we trying to put something 
                                 ; down on?
         lda P_FRAME
-  
+          
         cmp #TILE_BIN
         bne @is_serve
         jmp P_PUT_IN_BIN        ; Trash
@@ -846,19 +906,12 @@ P_JUST_SWAP                     ; Swap objects between hands and tile
 ;
 P_GET_ACTIVITY_TILE
           
-        jsr P_RESET_MAP_POS    
-
         plda PL_DIR             ; Which direction are we facing?
         
         cmp #DIR_N
         bne @is_south
 
-        lda P_MAP_POS_LO
-        sec
-        sbc #SCREEN_WIDTH - 1
-        sta P_MAP_POS_LO
-        bcs @check_tile
-        dec P_MAP_POS_HI
+        lda P_N_2
 
         jmp @check_tile
 
@@ -866,43 +919,31 @@ P_GET_ACTIVITY_TILE
         cmp #DIR_S
         bne @is_east
 
-        lda P_MAP_POS_LO
-        clc
-        adc #SCREEN_WIDTH_X3 + 1
-        sta P_MAP_POS_LO
-        bcc @check_tile
-        inc P_MAP_POS_HI
+        lda P_S_2
+     
         jmp @check_tile
 
 @is_east
         cmp #DIR_E
         bne @is_west
 
-        lda P_MAP_POS_LO
-        clc
-        adc #SCREEN_WIDTH + 3
-        sta P_MAP_POS_LO
-        bcc @check_tile
-        inc P_MAP_POS_HI
+        lda P_E_1
+
         jmp @check_tile
 
 @is_west
         cmp #DIR_W
         bne @done
 
-        lda P_MAP_POS_LO
-        clc
-        adc #SCREEN_WIDTH - 1
-        sta P_MAP_POS_LO
-        bcc @check_tile
-        inc P_MAP_POS_HI
+        lda P_W_1
 
 @check_tile
 
-        ldy #0                  ; Decided where to look, what is there?
-        lda (P_MAP_POS_LO),y
-        
+        ldx #$1
+
         tax
+        
+
 
         cmp #TILE_BENCH         ; Is this somewhere we can store an object?
 
@@ -952,8 +993,8 @@ P_MOVE_N
         psta PL_DIR
 
         plda PL_Y                ; Are we on the edge of a char
-        ;clc
-        ;adc #$5                 ; Adjust coord to line feet up with char
+        clc
+        adc #$3                 ; Adjust coord to line feet up with char
         and #$7
         cmp #$0
         beq @check
@@ -964,35 +1005,18 @@ P_MOVE_N
         lda #$1
         rts
 @check                          ;  Yes, so look at where we're moving to
-        jsr P_RESET_MAP_POS
-
-        lda P_MAP_POS_LO
-        sec
-        sbc #SCREEN_WIDTH
-        sta P_MAP_POS_LO
-        bcs @cc_1
-        dec P_MAP_POS_HI
-@cc_1
-
-        ldy #0                  ; Char under East foot
-        lda (P_MAP_POS_LO),y
-        sta P_R_FOOT_TILE
-        ;jsr SHOW_FOOT
-
-        lda P_MAP_POS_LO
-        clc
-        adc #$2                 ; Char under West foot
-        sta P_MAP_POS_LO
-        bcc @cc_2
-        dec P_MAP_POS_HI
-@cc_2
-        ldy #0
-        lda (P_MAP_POS_LO),y
-        sta P_L_FOOT_TILE
-        ;jsr SHOW_FOOT
-
-        jsr IS_FOOT_ON_WALL
+        lda P_N_1
+        jsr IS_ON_WALL
         beq @no_move
+
+        lda P_N_2
+        jsr IS_ON_WALL
+        beq @no_move
+
+        lda P_N_3
+        jsr IS_ON_WALL
+        beq @no_move
+        
                                 ; Move successful
         plda PL_Y               ; Update player Y coord
         sec
@@ -1007,10 +1031,7 @@ P_MOVE_N
         sbc #$0
         psta PL_MP_HI
         
-        lda P_L_FOOT_TILE
-        psta PL_L_FOOT_TILE
-        lda P_R_FOOT_TILE
-        psta PL_R_FOOT_TILE
+        jsr LOOK_PLAYER
 
         lda #$1
         rts
@@ -1025,8 +1046,8 @@ P_MOVE_S
         psta PL_DIR        
 
         plda PL_Y                ; Are we on the edge of a char
-        ;clc
-        ;adc #5
+        clc
+        adc #3
         and #$7
         cmp #$7
 
@@ -1038,33 +1059,16 @@ P_MOVE_S
         lda #$1
         rts
 @check                          ;  Yes, so look at where we're moving to
-        jsr P_RESET_MAP_POS
+        lda P_S_1
+        jsr IS_ON_WALL
+        beq @no_move
 
-        lda P_MAP_POS_LO
-        clc
-        adc #SCREEN_WIDTH_X2 + 2       ; Char under West foot
-        sta P_MAP_POS_LO
-        bcc @cc_1
-        inc P_MAP_POS_HI
-@cc_1
-        ldy #0
-        lda (P_MAP_POS_LO),y
-        sta P_L_FOOT_TILE
-        ;jsr SHOW_FOOT
+        lda P_S_2
+        jsr IS_ON_WALL
+        beq @no_move
 
-        lda P_MAP_POS_LO
-        sec
-        sbc #$2                 ; Char under East foot
-        sta P_MAP_POS_LO
-        bcs @cs_1
-        dec P_MAP_POS_HI
-@cs_1
-        ldy #0
-        lda (P_MAP_POS_LO),y
-        sta P_R_FOOT_TILE
-        ;jsr SHOW_FOOT
-
-        jsr IS_FOOT_ON_WALL
+        lda P_S_3
+        jsr IS_ON_WALL
         beq @no_move
         
         plda PL_Y                ;  Move successful
@@ -1080,10 +1084,7 @@ P_MOVE_S
         adc #$0
         psta PL_MP_HI        
         
-        lda P_L_FOOT_TILE
-        psta PL_L_FOOT_TILE
-        lda P_R_FOOT_TILE
-        psta PL_R_FOOT_TILE
+        jsr LOOK_PLAYER
 
         lda #$1
         rts
@@ -1098,8 +1099,8 @@ P_MOVE_E
         psta PL_DIR
 
         plda PL_X_LO             ; Are we on the edge of a char
-        ;clc
-        ;adc #3
+        clc
+        adc #3
         and #$7
         cmp #$7
         beq @check
@@ -1113,34 +1114,14 @@ P_MOVE_E
         lda #$1
         rts
 @check                          ;  Yes, so look at where we're moving to
-        jsr P_RESET_MAP_POS
-
-        lda P_MAP_POS_LO
-        clc
-        adc #SCREEN_WIDTH + 3   ; Char under East foot
-        sta P_MAP_POS_LO
-        bcc @cc_2
-        inc P_MAP_POS_HI
-@cc_2
-        ldy #0
-        lda (P_MAP_POS_LO),y
-        sta P_R_FOOT_TILE
-
-;        lda P_MAP_POS_LO        ; Char under West foot
-;        clc
-;        adc #SCREEN_WIDTH
-;        sta P_MAP_POS_LO
-;        bcc @cc_3
-;        inc P_MAP_POS_HI
-;@cc_3
-;        ldy #0
-;        lda (P_MAP_POS_LO),y
-        sta P_L_FOOT_TILE
-        jsr SHOW_FOOT
-
-        jsr IS_FOOT_ON_WALL
+        lda P_E_1
+        jsr IS_ON_WALL
         beq @no_move
-        
+
+        lda P_E_2
+        jsr IS_ON_WALL
+        beq @no_move
+
         plda PL_X_LO             ;  Move successful
         clc 
         adc #$1
@@ -1157,10 +1138,7 @@ P_MOVE_E
         adc #$0
         psta PL_MP_HI
 
-        lda P_L_FOOT_TILE
-        psta PL_L_FOOT_TILE
-        lda P_R_FOOT_TILE
-        psta PL_R_FOOT_TILE
+        jsr LOOK_PLAYER
 
         lda #$1
         rts
@@ -1174,8 +1152,8 @@ P_MOVE_W
         psta PL_DIR
 
         plda PL_X_LO             ; Are we on the edge of a char        
-        ;clc
-        ;adc #3
+        clc
+        adc #3
         and #$7
         cmp #$0
         beq @check
@@ -1189,31 +1167,12 @@ P_MOVE_W
         lda #$1
         rts
 @check                          ;  Yes, so look at where we're moving to
-        jsr P_RESET_MAP_POS
+        lda P_W_1
+        jsr IS_ON_WALL
+        beq @no_move
 
-        lda P_MAP_POS_LO
-        clc
-        adc #SCREEN_WIDTH - 1   ; Char under East foot
-        sta P_MAP_POS_LO
-        bcc @cc_1
-        inc P_MAP_POS_HI
-@cc_1
-        ldy #0
-        lda (P_MAP_POS_LO),y
-        sta P_L_FOOT_TILE
-        
-;        lda P_MAP_POS_LO        ; Char under West foot
-;        clc
-;        adc #SCREEN_WIDTH
-;        sta P_MAP_POS_LO
-;        bcc @cc_2
-;        inc P_MAP_POS_HI
-;@cc_2
-;        ldy #0
-;        lda (P_MAP_POS_LO),y
-        sta P_R_FOOT_TILE
-        
-        jsr IS_FOOT_ON_WALL
+        lda P_W_2
+        jsr IS_ON_WALL
         beq @no_move
 
         plda PL_X_LO             ;  Move successful
@@ -1231,11 +1190,8 @@ P_MOVE_W
         plda PL_MP_HI
         sbc #$0
         psta PL_MP_HI
-
-        lda P_L_FOOT_TILE
-        psta PL_L_FOOT_TILE
-        lda P_R_FOOT_TILE
-        psta PL_R_FOOT_TILE
+      
+        jsr LOOK_PLAYER
 
         lda #$1
         rts
@@ -1270,14 +1226,27 @@ SLIDE_PLAYER
         plda PL_DIR
         sta T_SLIDER_DIR
         
-        plda PL_L_FOOT_TILE
-        cmp #TILE_SLIDER_W
-        bcc @is_north
-        plda PL_R_FOOT_TILE
+        lda P_L
+        tax
+        and #TILE_SLIDE_MASK
         cmp #$0
-        beq @not_sliding  
-        
-@is_north
+        bne @on_slider
+
+        lda P_M
+        tax
+        and #TILE_SLIDE_MASK
+        cmp #$0
+        bne @on_slider
+
+        lda P_R
+        tax
+        and #TILE_SLIDE_MASK
+        cmp #$0
+        beq @not_sliding
+  
+@on_slider   
+        txa
+
         cmp #TILE_SLIDER_N
         bne @is_south
         jsr P_MOVE_N
@@ -1299,16 +1268,6 @@ SLIDE_PLAYER
         cmp #TILE_SLIDER_W
         bne @not_sliding
         jsr P_MOVE_W
-        jmp @sliding
-
-@not_sliding
-        
-        lda T_SLIDER_DIR
-        psta PL_DIR
-
-        lda #$0
-
-        rts
 
 @sliding
 
@@ -1319,52 +1278,13 @@ SLIDE_PLAYER
 
         rts
 
-
-IS_BLOCKED
-
-        plda PL_L_FOOT_TILE
-        tax
-        and #TILE_BLOCKER_0
-        cmp #$0
-        bne @on_blocker
-
-        plda PL_R_FOOT_TILE
-        tax
-        and #TILE_BLOCKER_0
-        cmp #$0
-        beq @not_blocked
-
-@on_blocker
-
-        txa
-        and #$3
-        tay
-        ldx LVL_BLOCK_STATE,y
-        lda BLOCKER_SEQ,x
-        beq @not_blocked
-
-        lda #ACT_BLOCKED
-        psta PL_ACTIVITY
-
-        jmp @done
-
-@not_blocked
-        lda #ACT_MOVE
-        psta PL_ACTIVITY
-@done
-        rts
-
-IS_FOOT_ON_WALL
-
-        lda P_L_FOOT_TILE
-        jsr IS_ON_WALL
-        cmp #$0
-        beq @done
-
-        lda P_R_FOOT_TILE
-        jsr IS_ON_WALL
+@not_sliding
         
-@done
+        lda T_SLIDER_DIR
+        psta PL_DIR
+
+        lda #$0
+
         rts
 
 IS_ON_WALL
@@ -1705,7 +1625,7 @@ SET_OBJ_SPRITE
 
         plda PL_X_LO
         clc
-        adc #16
+        adc #14
         sta P_SP0X,x
         plda PL_X_HI
         adc #$0
@@ -1842,7 +1762,8 @@ UPDATE_OBJECT_SPRITES
 
         tay
         
-        ora #FIRST_SPRITE               ; Get frame
+        clc
+        adc #FIRST_SPRITE               ; Get frame
         sta P_FRAME
                                              ; Look up colour        
         lda SPRITE_COLOURS,y

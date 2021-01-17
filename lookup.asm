@@ -1,6 +1,4 @@
 
-*=$5000
-
 NUM_FLAG        ; Translates numbers to bits
         byte 1, 2, 4, 8, 16, 32, 64, 128
 
@@ -25,6 +23,12 @@ CM_SW
         byte 32, 19, 28, 19, 20, 23, 20, 23
 CM_W 
         byte 32, 19
+
+PLAYER_LOOK_OFFSET
+        byte 0, 1, 1                            ;    N1 N2 N3
+        byte SCREEN_WIDTH - 3, 4                ; W1          E1
+        byte SCREEN_WIDTH - 4, 1, 1, 1, 1       ; W1  L  M  R E2
+        byte SCREEN_WIDTH - 3, 1, 1             ;    S1 S2 S3
 
 
 PLAYER_FRAME_SEQS
@@ -59,7 +63,7 @@ SPRITE_COLOURS
         byte COL_GREEN  ; Lettuce - Chopped
         byte COL_LRED   ; Meat - Raw
         byte COL_BROWN  ; Meat - Cooked
-        byte COL_BROWN  ; Pan - Empty
+        byte COL_DGREY  ; Pan - Empty
         byte COL_LRED   ; Pan - Cooking
         byte 0, 0, 0
         byte 0, 0, 0
@@ -133,8 +137,8 @@ BLOCKER_DST_HI
 ; Title Line data.
 ; Sprite position, colours and frames for the timer and score      
 STATUS_LINE
-        BYTE 20                         ; 0 - Y position to wait for
-        BYTE 26                         ; 1 - Y position to draw at
+        BYTE 28                         ; 0 - Y position to wait for
+        BYTE 34                         ; 1 - Y position to draw at
         BYTE 24, 46, 57, 69, 86, 21, 43, 61 ; 2 - 9 - X position sprites
         BYTE $E0                          ; 10 - MSIGX
         BYTE COL_WHITE, COL_WHITE, COL_WHITE, COL_WHITE, COL_WHITE, COL_ORANGE, COL_WHITE, COL_WHITE ; 11 - 18 - SP0COL - SP7COL 
@@ -148,8 +152,8 @@ STATUS_LINE
 ; values.
 
 FRAME_LINE_0
-        BYTE 49                         ; 0 - Y position to wait for
-        BYTE 52                         ; 1 - Y position to draw at
+        BYTE 57                         ; 0 - Y position to wait for
+        BYTE 60                         ; 1 - Y position to draw at
         BYTE 0, 0, 0, 0                 ; 2 - 5 - X position of fixed objects
         BYTE 0                          ; 6 - MSIGX
         BYTE $0                         ; 7 - SPENA
@@ -157,22 +161,32 @@ FRAME_LINE_0
         BYTE 0, 0, 0, 0                 ; 12 - 15 - SPRPTR4 - SPRPTR7
 
 FRAME_LINE_1
-        BYTE 73, 76, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+        BYTE 81, 84, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 FRAME_LINE_2
-        BYTE 97, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+        BYTE 105, 108, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 FRAME_LINE_3
-        BYTE 121, 124, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+        BYTE 129, 132, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 FRAME_LINE_4
-        BYTE 145, 148, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+        BYTE 153, 156, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 FRAME_LINE_5
-        BYTE 169, 172, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+        BYTE 177, 180, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 FRAME_LINE_6
-        BYTE 193, 196, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+        BYTE 201, 204, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 FRAME_LINE_7
-        BYTE 217, 220, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+        BYTE 225, 228, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+
+TITLE_LINE_X
+        BYTE 85,133,181,229,87,135,183,231
+TITLE_COLS_1
+        BYTE COL_YELLOW, COL_YELLOW, COL_YELLOW, COL_YELLOW, COL_RED, COL_RED, COL_RED, COL_RED
+TITLE_COLS_2
+        BYTE COL_GREEN, COL_GREEN, COL_GREEN, COL_GREEN, COL_PURPLE, COL_PURPLE, COL_PURPLE, COL_PURPLE
+
+FG_FADE_COLS
+        BYTE COL_BLACK, COL_DGREY, COL_MGREY, COL_LGREY, $FF

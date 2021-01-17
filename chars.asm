@@ -1,4 +1,5 @@
-*=$3800
+incbin "chars_text.bin"
+*=$7800
 CHAR_BASE
 incbin "chars_game.bin"
 

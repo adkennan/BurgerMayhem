@@ -1,2 +1,3 @@
-*=$2400
+
 incbin "sprites.bin"
+incbin "logo_sprites.bin"

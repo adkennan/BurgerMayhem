@@ -1,26 +1,7 @@
-defm    time_on 
-;        lda #COL_/1
-;        sta EXTCOL
-        endm
-
-defm    time_off
-;        lda #COL_BLACK
-;        sta EXTCOL
-        endm
-
-defm    plda
-        ldy #/1
-        lda (P_PLAYER_LO),y
-        endm
-
-defm    psta
-        ldy #/1
-        sta (P_PLAYER_LO),y
-        endm
 
 START_GAME
         
-        jsr FADE_OUT
+        jsr FADE_FG_OUT
         jsr CLEAR_SCREEN
         
         lda #$01
@@ -28,6 +9,9 @@ START_GAME
 
         lda #GS_PRE_LEVEL
         sta G_GAME_STATE
+
+        lda #2
+        sta G_PLAYER_COUNT
 
         rts
 
@@ -149,13 +133,6 @@ INIT_LEVEL
                 
         jsr INIT_PLAYER
 
-        lda #2
-        sta G_PLAYER_COUNT
-
-        jsr UPDATE_ALL_OBJECT_SPRITES
-
-        jsr DRAW_MAP
-        jsr FADE_IN
         rts
 
 INIT_PLAYER
@@ -169,9 +146,17 @@ INIT_PLAYER
 
         lda #24
         psta PL_X_LO
-        lda #50
+        lda #58
         psta PL_Y
 
+        plda PL_MP_LO
+        clc
+        adc #SCREEN_WIDTH
+        psta PL_MP_LO
+        plda PL_MP_HI
+        adc #$0
+        psta PL_MP_HI
+        
         ldx P_MY
 
 @set_y
@@ -237,6 +222,12 @@ INIT_PLAYER
         rts
 
 TITLE
+        jsr TEXT_SCREEN
+
+        jsr TITLE_INIT
+
+@loop
+        jsr TITLE_IN
 
         ldx #$0
         jsr CHECK_JOYSTICK
@@ -250,11 +241,14 @@ TITLE
         cmp #$1
         beq @start
         
-        jmp TITLE
+        jmp @loop
 
 @start
-
-        jsr FADE_OUT
+        jsr TITLE_OUT
+        cmp #$1
+        bne @start
+     
+        jsr FADE_FG_OUT
         jsr CLEAR_SCREEN
 
         lda #GS_START_GAME
@@ -262,7 +256,371 @@ TITLE
 
         rts
 
+TITLE_INIT
+        lda #LINE_1_START
+        sta TITLE_L1_Y
+        lda #LINE_2_START
+        sta TITLE_L2_Y
+        rts
+
+TITLE_HOLD
+        lda #50
+@wait_1
+        cmp RASTER
+        bne @wait_1
+
+        jsr TITLE_L1_UPDATE
+
+        lda #LINE_2_STOP - 2
+@wait_2
+        cmp RASTER
+        bne @wait_2
+
+        jsr TITLE_L2_UPDATE
+        
+        rts
+
+TITLE_IN
+
+@loop
+        lda #$ff
+@wait_1
+        cmp RASTER
+        bne @wait_1
+
+        jsr TITLE_L1_UPDATE
+        
+        lda TITLE_L1_Y
+        cmp #LINE_1_STOP
+        beq @line_1_in_stop
+        clc
+        adc #$2
+        sta TITLE_L1_Y
+
+        lda #$0
+        rts
+
+@line_1_in_stop        
+
+        lda #LINE_2_STOP - 2
+@wait_2
+        cmp RASTER
+        bne @wait_2
+
+        jsr TITLE_L2_UPDATE
+        
+        lda TITLE_L1_Y
+        cmp #LINE_1_STOP
+        bne @line_2_in_stop
+        
+        lda TITLE_L2_Y
+        cmp #LINE_2_STOP
+        beq @line_2_in_stop
+        sec
+        sbc #$2
+        sta TITLE_L2_Y
+
+        lda #$0
+        rts
+        
+@line_2_in_stop        
+
+        lda #$1
+        rts
+
+TITLE_OUT
+        lda #$ff
+@wait_1
+        cmp RASTER
+        bne @wait_1
+
+        jsr TITLE_L1_UPDATE
+        
+        lda #LINE_2_STOP - 2
+@wait_2
+        cmp RASTER
+        bne @wait_2
+
+        jsr TITLE_L2_UPDATE
+        
+        lda TITLE_L2_Y
+        cmp #LINE_2_START
+        beq @line_2_out_stop
+        clc
+        adc #$2
+        sta TITLE_L2_Y
+
+        lda #$0
+        rts
+
+@line_2_out_stop
+
+        lda TITLE_L1_Y
+        cmp #LINE_1_START
+        beq @line_1_out_stop
+        sec
+        sbc #$2
+        sta TITLE_L1_Y
+        
+        lda #$0
+        rts
+
+@line_1_out_stop   
+        lda #$1        
+        rts
+
+TITLE_L1_UPDATE
+        lda TITLE_L1_Y        
+        sta SP0Y
+        sta SP1Y
+        sta SP2Y
+        sta SP3Y
+        clc
+        adc #$2
+        sta SP4Y
+        sta SP5Y
+        sta SP6Y
+        sta SP7Y
+        
+        ldy #0
+        ldx #0
+        lda TITLE_LINE_X,y
+        sta SP0X
+        lda TITLE_COLS_1,y
+        sta SP0COL
+        tya
+        clc
+        adc #LOGO_BURGER_SPR
+        sta SPRPTR0
+
+        iny
+        lda TITLE_LINE_X,y
+        sta SP1X
+        lda TITLE_COLS_1,y
+        sta SP1COL
+        tya
+        clc
+        adc #LOGO_BURGER_SPR
+        sta SPRPTR1
+
+        iny
+        lda TITLE_LINE_X,y
+        sta SP2X
+        lda TITLE_COLS_1,y
+        sta SP2COL
+        tya
+        clc
+        adc #LOGO_BURGER_SPR
+        sta SPRPTR2
+
+        iny
+        lda TITLE_LINE_X,y
+        sta SP3X
+        lda TITLE_COLS_1,y
+        sta SP3COL
+        tya
+        clc
+        adc #LOGO_BURGER_SPR
+        sta SPRPTR3
+
+        iny
+        lda TITLE_LINE_X,y
+        sta SP4X
+        lda TITLE_COLS_1,y
+        sta SP4COL
+        txa
+        clc
+        adc #LOGO_BURGER_SPR
+        sta SPRPTR4
+
+        inx
+        iny
+        lda TITLE_LINE_X,y
+        sta SP5X
+        lda TITLE_COLS_1,y
+        sta SP5COL
+        txa
+        clc
+        adc #LOGO_BURGER_SPR
+        sta SPRPTR5
+
+        inx
+        iny
+        lda TITLE_LINE_X,y
+        sta SP6X
+        lda TITLE_COLS_1,y
+        sta SP6COL
+        txa
+        clc
+        adc #LOGO_BURGER_SPR
+        sta SPRPTR6
+
+        inx
+        iny
+        lda TITLE_LINE_X,y
+        sta SP7X
+        lda TITLE_COLS_1,y
+        sta SP7COL
+        txa
+        clc
+        adc #LOGO_BURGER_SPR
+        sta SPRPTR7
+        
+        lda #$ff
+        sta YXPAND
+        sta XXPAND
+        sta SPENA 
+        lda #$0
+        sta MSIGX
+
+        rts
+
+TITLE_L2_UPDATE
+        
+        lda TITLE_L2_Y        
+        sta SP0Y
+        sta SP1Y
+        sta SP2Y
+        sta SP3Y
+        clc
+        adc #$2
+        sta SP4Y
+        sta SP5Y
+        sta SP6Y
+        sta SP7Y
+        
+        ldy #0
+        ldx #0
+        lda TITLE_LINE_X,y
+        sta SP0X
+        lda TITLE_COLS_2,y
+        sta SP0COL
+        tya
+        clc
+        adc #LOGO_MAYHEM_SPR
+        sta SPRPTR0
+
+        iny
+        lda TITLE_LINE_X,y
+        sta SP1X
+        lda TITLE_COLS_2,y
+        sta SP1COL
+        tya
+        clc
+        adc #LOGO_MAYHEM_SPR
+        sta SPRPTR1
+
+        iny
+        lda TITLE_LINE_X,y
+        sta SP2X
+        lda TITLE_COLS_2,y
+        sta SP2COL
+        tya
+        clc
+        adc #LOGO_MAYHEM_SPR
+        sta SPRPTR2
+
+        iny
+        lda TITLE_LINE_X,y
+        sta SP3X
+        lda TITLE_COLS_2,y
+        sta SP3COL
+        tya
+        clc
+        adc #LOGO_MAYHEM_SPR
+        sta SPRPTR3
+
+        iny
+        lda TITLE_LINE_X,y
+        sta SP4X
+        lda TITLE_COLS_2,y
+        sta SP4COL
+        txa
+        clc
+        adc #LOGO_MAYHEM_SPR
+        sta SPRPTR4
+
+        inx
+        iny
+        lda TITLE_LINE_X,y
+        sta SP5X
+        lda TITLE_COLS_2,y
+        sta SP5COL
+        txa
+        clc
+        adc #LOGO_MAYHEM_SPR
+        sta SPRPTR5
+
+        inx
+        iny
+        lda TITLE_LINE_X,y
+        sta SP6X
+        lda TITLE_COLS_2,y
+        sta SP6COL
+        txa
+        clc
+        adc #LOGO_MAYHEM_SPR
+        sta SPRPTR6
+
+        inx
+        iny
+        lda TITLE_LINE_X,y
+        sta SP7X
+        lda TITLE_COLS_2,y
+        sta SP7COL
+        txa
+        clc
+        adc #LOGO_MAYHEM_SPR
+        sta SPRPTR7
+        
+        lda #$ff
+        sta YXPAND
+        sta XXPAND
+        sta SPENA 
+        lda #$0
+        sta MSIGX
+        rts
+
 PRE_LEVEL
+        
+        jsr TITLE_INIT
+        
+@loop_title_in
+        jsr TITLE_IN
+        cmp #$1
+        bne @loop_title_in
+
+        jsr INIT_LEVEL
+
+        print STR_LEVEL, 450, COL_ORANGE, COL_RED
+        print STR_TIME_LIMIT, 525, COL_ORANGE, COL_RED
+        print STR_BURGERS_REQUIRED, 600, COL_ORANGE, COL_RED
+        print STR_PRESS_FIRE, 934, COL_LBLUE, COL_BLUE 
+
+        lda G_LEVEL_NUM
+        print_num 457, COL_ORANGE, COL_RED
+
+        ldy #LVL_TL_M
+        print_num_ptr_y L_CURR_LEVEL_LO, 537, COL_ORANGE, COL_RED
+
+        ldy #LVL_TL_S_HI
+        print_num_ptr_y L_CURR_LEVEL_LO, 539, COL_ORANGE, COL_RED
+        ldy #LVL_TL_S_LO
+        print_num_ptr_y L_CURR_LEVEL_LO, 540, COL_ORANGE, COL_RED
+
+        ldy #LVL_TARGET
+        print_num_ptr_y L_CURR_LEVEL_LO, 617, COL_ORANGE, COL_RED
+
+        ldy #LVL_DESC_LO
+        print_ptr_y L_CURR_LEVEL_LO, 720, COL_LGREEN, COL_GREEN
+
+        jsr FADE_FG_IN_INIT
+
+
+@loop
+        jsr TITLE_HOLD
+
+        jsr FADE_FG_IN
 
         ldx #$0
         jsr CHECK_JOYSTICK
@@ -276,14 +634,32 @@ PRE_LEVEL
         cmp #$1
         beq @start
         
-        jmp PRE_LEVEL
+        jmp @loop
 
 @start
+        jsr FADE_FG_OUT_INIT
 
-        jsr FADE_OUT
+@loop_fade_out
+        jsr TITLE_HOLD
+
+        jsr FADE_FG_OUT
+        cmp #$0
+        bne @loop_fade_out
+
+@title_slide_out
+        jsr TITLE_OUT
+        cmp #$1
+        bne @title_slide_out
+        
         jsr CLEAR_SCREEN
 
-        jsr INIT_LEVEL
+        jsr GFX_SCREEN
+
+        jsr DRAW_MAP
+        
+        jsr FADE_IN
+
+        jsr UPDATE_ALL_OBJECT_SPRITES
 
         lda #GS_RUNNING
         sta G_GAME_STATE
@@ -294,6 +670,7 @@ POST_LEVEL
 
         jsr FADE_OUT
         jsr CLEAR_SCREEN
+        jsr TEXT_SCREEN
 
 @loop
         ldx #$0
@@ -339,7 +716,7 @@ GAME_OVER
 
 @start
 
-        jsr FADE_OUT
+        jsr FADE_FG_OUT
         jsr CLEAR_SCREEN
 
         lda #GS_TITLE
@@ -379,7 +756,6 @@ RUN_LEVEL
         cmp RASTER
         bne @wait_for_F9
 
-
         lda SCROLY
         and #$F7
         sta SCROLY
@@ -392,11 +768,11 @@ RUN_LEVEL
         lda SCROLY
         ora #$8
         sta SCROLY
-
+        
         time_on PURPLE
         jsr RUN_PLAYER_1                
         time_off
-        
+
         time_on GREEN
         jsr RUN_PLAYER_2
         time_off
@@ -453,9 +829,11 @@ UPDATE_ALL_OBJECT_SPRITES
         tay
 
         lda P_SPRITE_NUM
-        ora #FIRST_SPRITE
+        clc
+        adc #FIRST_SPRITE
         sta (P_FRAME_LINE_LO),y
-        and #FIRST_SPRITE - 1
+        sec
+        sbc #FIRST_SPRITE
 
         tay                     ; Look up colour        
         lda SPRITE_COLOURS,y

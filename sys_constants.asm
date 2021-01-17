@@ -53,17 +53,22 @@ SP7COL          = $D02E
 D1PRA           = $DC00
 D1PRB           = $DC01
 D1ICR           = $DC0D
+D2PRA           = $DD00
+D2PRB           = $DD01
 D2ICR           = $DD0D
 
+
+VIDEO_BANK      = $4000
+
 ; Sprite Pointers
-SPRPTR0         = $07F8 ; Sprite 0 pointer
-SPRPTR1         = $07F9 ; Sprite 1 pointer
-SPRPTR2         = $07FA ; Sprite 2 pointer
-SPRPTR3         = $07FB ; Sprite 3 pointer
-SPRPTR4         = $07FC ; Sprite 4 pointer
-SPRPTR5         = $07FD ; Sprite 5 pointer
-SPRPTR6         = $07FE ; Sprite 6 pointer
-SPRPTR7         = $07FF ; Sprite 7 pointer
+SPRPTR0         = VIDEO_BANK + $07F8 ; Sprite 0 pointer
+SPRPTR1         = VIDEO_BANK + $07F9 ; Sprite 1 pointer
+SPRPTR2         = VIDEO_BANK + $07FA ; Sprite 2 pointer
+SPRPTR3         = VIDEO_BANK + $07FB ; Sprite 3 pointer
+SPRPTR4         = VIDEO_BANK + $07FC ; Sprite 4 pointer
+SPRPTR5         = VIDEO_BANK + $07FD ; Sprite 5 pointer
+SPRPTR6         = VIDEO_BANK + $07FE ; Sprite 6 pointer
+SPRPTR7         = VIDEO_BANK + $07FF ; Sprite 7 pointer
 
 ; IRQ Addresses
 NMISR           = $FFFA
@@ -93,20 +98,27 @@ BG_COL_2        = $80
 BG_COL_3        = $C0
 
 ; Flags
-VMCSB_CHARS     = $0E ; Character set location, $3800
+VMCSB_CH_FONT   = $0B ; Font character set location $2800
+VMCSB_CH_GFX    = $0E ; GFX character set location, $3800
 VMCSB_SCREEN    = $10 ; Screen memory location, $0400
-VMCSB_VAL       = VMCSB_CHARS OR VMCSB_SCREEN
+
+VMCSB_TEXT      = VMCSB_CH_FONT + VMCSB_SCREEN
+VMCSB_GFX       = VMCSB_CH_GFX + VMCSB_SCREEN
 
 SCROLY_VPOS     = $03 ; Vertical fine scrolling position
 SCROLY_HEIGHT   = $08 ; 25 char/200 pixel screen height
 SCROLY_ENABLE   = $10 ; Enable display
 SCROLY_EXTBG    = $40 ; Enable extended background colour mode
-SCROLY_VAL      = SCROLY_VPOS OR SCROLY_HEIGHT OR SCROLY_ENABLE OR SCROLY_EXTBG
+
+SCROLY_TEXT     = SCROLY_VPOS + SCROLY_HEIGHT + SCROLY_ENABLE
+SCROLY_GFX      = SCROLY_VPOS + SCROLY_HEIGHT + SCROLY_ENABLE + SCROLY_EXTBG
 
 SPMC_ON         = $FF ; All multicolour
 
+D2PRA_BANK1     = $02 ; Video bank 1
+
 ; Border pattern location
-BORDER_PAT_LOC  = $39FF ; Location of byte shown in place of top and bottom borders.
+BORDER_PAT_LOC  = $79FF ; Location of byte shown in place of top and bottom borders.
 
 ; CPU Port
 CPUPORT         = $01
@@ -119,10 +131,10 @@ CPUPORT_VAL     = CPUPORT_RAM OR CPUPORT_DS_OFF
 DXICR_CLEAR     = $7F
 
 ; Screen Memory
-SCREEN_0        = $0400
-SCREEN_1        = $0500
-SCREEN_2        = $0600
-SCREEN_3        = $0700
+SCREEN_0        = VIDEO_BANK + $0400
+SCREEN_1        = VIDEO_BANK + $0500
+SCREEN_2        = VIDEO_BANK + $0600
+SCREEN_3        = VIDEO_BANK + $0700
 
 SCREEN_WIDTH    = 40
 SCREEN_WIDTH_X2 = SCREEN_WIDTH * 2

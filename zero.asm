@@ -48,8 +48,6 @@ P1_ACT_INDEX    = $3D ;  Index of the object we're acting on.
 P1_MSG          = $3E ;  Message sprite to display
 P1_MSG_COUNT    = $3F ;  Time remaining to show message or $FF to keep it
 P1_UPDATE_OBJ   = $40 ;  Index of object sprite to update
-P1_L_FOOT_TILE  = $41 ;  Tile under left foot 
-P1_R_FOOT_TILE  = $42 ;  Tile under right foot
 
                       ; Player 2
 P2_DATA         = $A0
@@ -70,8 +68,6 @@ P2_ACT_INDEX    = $AD ;  Index of the object we're acting on.
 P2_MSG          = $AE ;  Message sprite to display
 P2_MSG_COUNT    = $AF ;  Time remaining to show message or $FF to keep it
 P2_UPDATE_OBJ   = $B0 ;  Index of object sprite to update
-P2_L_FOOT_TILE  = $B1 ;  Tile under left foot 
-P2_R_FOOT_TILE  = $B2 ;  Tile under right foot
 
 ; Map drawing variables
 
@@ -109,8 +105,6 @@ P_TMP_OBJ_VAL   = $67
 P_MX            = $63
 P_MY            = $64
 P_INGR_BIT      = $68
-P_L_FOOT_TILE   = $63 ;  Tile under left foot 
-P_R_FOOT_TILE   = $64 ;  Tile under right foot 
 
 P_OBJ_TYPE_LO   = $6B
 P_OBJ_TYPE_HI   = $6C
@@ -165,3 +159,37 @@ T_BLOCKER_DST_HI = $C4
 T_SLIDER_DIR    = $C3
 
 L_SLIDER_TIME = $C5
+
+P_LOOK_TILES    = $D0
+P_N_1           = P_LOOK_TILES
+P_N_2           = P_LOOK_TILES + 1
+P_N_3           = P_LOOK_TILES + 2
+P_W_1           = P_LOOK_TILES + 3
+P_E_1           = P_LOOK_TILES + 4
+P_W_2           = P_LOOK_TILES + 5
+P_L             = P_LOOK_TILES + 6
+P_M             = P_LOOK_TILES + 7
+P_R             = P_LOOK_TILES + 8
+P_E_2           = P_LOOK_TILES + 9
+P_S_1           = P_LOOK_TILES + 10
+P_S_2           = P_LOOK_TILES + 11
+P_S_3           = P_LOOK_TILES + 12
+
+TITLE_L1_Y      = $60
+TITLE_L2_Y      = $61
+
+FG_FADE_COUNT   = $62
+FG_FADE_INDEX   = $63
+
+TEXT_POS_LO     = $E0
+TEXT_POS_HI     = $E1
+TEXT_SRC_LO     = $E2
+TEXT_SRC_HI     = $E3
+TEXT_LEN        = $E4
+TEXT_DST_LO     = $E5
+TEXT_DST_HI     = $E6
+TEXT_COL_1      = $E7
+TEXT_COL_2      = $E8
+TEXT_COL_LO     = $E9
+TEXT_COL_HI     = $EA
+TEXT_NUM        = $E2

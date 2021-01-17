@@ -15,6 +15,10 @@ CLEAR_SCREEN
         sta REAL_COLOUR_RAM_1,x
         sta REAL_COLOUR_RAM_2,x
         sta REAL_COLOUR_RAM_3,x
+        sta COLOUR_RAM_0,x
+        sta COLOUR_RAM_1,x
+        sta COLOUR_RAM_2,x
+        sta COLOUR_RAM_3,x
         dex
         bne @loop
 
@@ -23,20 +27,29 @@ CLEAR_SCREEN
 DRAW_MAP
         ; Start position in screen memory
         lda #<SCREEN_0
+        clc
+        adc #SCREEN_WIDTH
         sta M_MAP_POS_LO
         lda #>SCREEN_0
+        adc #$0
         sta M_MAP_POS_HI
 
         ; Start position in colour memory
         lda #<COLOUR_RAM
+        clc
+        adc #SCREEN_WIDTH
         sta M_COL_POS_LO
         lda #>COLOUR_RAM
+        adc #$0
         sta M_COL_POS_HI
 
         ; Start position in LVL_TILE_MAP
         lda #<LVL_TILE_MAP
+        clc
+        adc #SCREEN_WIDTH
         sta M_LVLMAP_POS_LO
         lda #>LVL_TILE_MAP
+        adc #$0
         sta M_LVLMAP_POS_HI
 
         ; Index of first object in LVL_OBJ_TYPE
@@ -889,9 +902,6 @@ GET_ADJACENT
         cmp #TILE_WALL
         bcc @not_floor          ; Is it floor?
 
-        ;and #TILE_BLOCKER_0     ; Is it a blocker?    
-        ;bne @not_floor
-
         lda #1
         jmp @next
 @not_floor      
@@ -1023,16 +1033,22 @@ DRAW_CHAR_W
         sta (M_COL_POS_LO),y
         rts
 
-BLACK_SCREEN
-        lda #COL_BLACK
-        sta BGCOL0
-        lda #COL_BLACK
-        sta BGCOL1
-        lda #COL_BLACK
-        sta BGCOL2
-        lda #COL_BLACK
-        sta BGCOL3
-        sta EXTCOL
+TEXT_SCREEN
+        lda #VMCSB_TEXT
+        sta VMCSB
+
+        lda #SCROLY_TEXT
+        sta SCROLY
+
+        rts
+
+GFX_SCREEN
+        lda #VMCSB_GFX
+        sta VMCSB
+
+        lda #SCROLY_GFX
+        sta SCROLY
+
         rts
 
 DRAW_PLAYERS
@@ -1355,12 +1371,72 @@ FADE_IN
 
         rts
 
+
+FADE_FG_IN_INIT
+        lda #$0
+        sta FG_FADE_INDEX
+        lda #FG_FADE_FREQ
+        sta FG_FADE_COUNT
+        rts
+
+FADE_FG_IN
+        jsr FG_FADE_WAIT
+
+        lda FG_FADE_INDEX
+        cmp #FG_FADE_LENGTH
+        bne @incomplete
+        rts
+
+@incomplete
+        lda FG_FADE_COUNT
+        sec
+        sbc #$1
+        sta FG_FADE_COUNT
+        beq @do_fade
+        rts
+
+@do_fade
+        ldy FG_FADE_INDEX
+        lda FG_FADE_COLS,y
+        
+        cmp #$FF
+        beq @copy_colours
+        
+        jsr DO_FG_FADE
+
+        jmp @done
+
+@copy_colours
+        ldx #$0
+        
+@loop
+        lda COLOUR_RAM_0,x
+        sta REAL_COLOUR_RAM_0,x
+        lda COLOUR_RAM_1,x
+        sta REAL_COLOUR_RAM_1,x
+        lda COLOUR_RAM_2,x
+        sta REAL_COLOUR_RAM_2,x
+        lda COLOUR_RAM_3,x
+        sta REAL_COLOUR_RAM_3,x
+        dex
+        bne @loop
+
+@done
+        lda #FG_FADE_FREQ
+        sta FG_FADE_COUNT
+
+        inc FG_FADE_INDEX
+        rts
+
+
 FADE_OUT
         jsr FADE_WAIT
 
         lda #0
         sta SPENA
-
+        sta YXPAND
+        sta XXPAND
+        
         lda #COL_LGREY
         sta F_FG_COL
         lda #COL_MGREY
@@ -1408,6 +1484,51 @@ FADE_OUT
 
         rts
 
+FADE_FG_OUT_INIT
+        lda #FG_FADE_LENGTH
+        sta FG_FADE_INDEX
+        lda #FG_FADE_FREQ
+        sta FG_FADE_COUNT
+        rts
+
+FADE_FG_OUT
+        jsr FG_FADE_WAIT
+
+        lda FG_FADE_INDEX
+        cmp #$0
+        bne @incomplete
+        rts
+
+@incomplete
+        lda FG_FADE_COUNT
+        sec
+        sbc #$1
+        sta FG_FADE_COUNT
+        beq @do_fade
+
+        lda #$1
+        rts
+
+@do_fade
+        dec FG_FADE_INDEX
+
+        ldy FG_FADE_INDEX
+        lda FG_FADE_COLS,y
+        
+        jsr DO_FG_FADE
+
+        lda #FG_FADE_FREQ
+        sta FG_FADE_COUNT
+
+        lda #$1
+        rts
+
+FG_FADE_WAIT
+        lda #180
+@loop
+        cmp RASTER
+        bne @loop
+        rts
 
 FADE_WAIT
         
@@ -1434,14 +1555,192 @@ DO_FADE
         lda #COL_BLACK
         sta EXTCOL
         ldx #$0
-        
-@loop3
-        lda F_FG_COL
+     
+        lda F_FG_COL   
+@loop
         sta REAL_COLOUR_RAM_0,x
         sta REAL_COLOUR_RAM_1,x
         sta REAL_COLOUR_RAM_2,x
         sta REAL_COLOUR_RAM_3,x
         dex
-        bne @loop3
+        bne @loop
 
+        rts
+
+
+DO_FG_FADE
+
+        ldx #$0        
+        lda F_FG_COL
+@loop
+        sta REAL_COLOUR_RAM_0,x
+        sta REAL_COLOUR_RAM_1,x
+        sta REAL_COLOUR_RAM_2,x
+        sta REAL_COLOUR_RAM_3,x
+        dex
+        bne @loop
+
+        rts
+
+WRITE_NUMBER
+        lda TEXT_POS_LO
+        clc
+        adc #<SCREEN_0
+        sta TEXT_DST_LO
+        lda TEXT_POS_HI
+        adc #>SCREEN_0
+        sta TEXT_DST_HI
+
+        lda TEXT_POS_LO
+        clc
+        adc #<COLOUR_RAM
+        sta TEXT_COL_LO
+        lda TEXT_POS_HI
+        adc #>COLOUR_RAM
+        sta TEXT_COL_HI
+
+        ldy #$0
+        ldx #$0
+        lda TEXT_NUM
+
+@loop_10s
+        cmp #10
+        bcc @write_10s
+        sec
+        sbc #10
+        inx
+        jmp @loop_10s
+
+@write_10s
+        sta TEXT_NUM
+        txa
+        cmp #$0
+        beq @skip_zero
+        jsr WRITE_DIGIT_A_Y
+        iny
+@skip_zero
+        lda TEXT_NUM
+        jsr WRITE_DIGIT_A_Y
+
+        rts
+        
+WRITE_DIGIT
+        lda TEXT_POS_LO
+        clc
+        adc #<SCREEN_0
+        sta TEXT_DST_LO
+        lda TEXT_POS_HI
+        adc #>SCREEN_0
+        sta TEXT_DST_HI
+
+        lda TEXT_POS_LO
+        clc
+        adc #<COLOUR_RAM
+        sta TEXT_COL_LO
+        lda TEXT_POS_HI
+        adc #>COLOUR_RAM
+        sta TEXT_COL_HI
+
+        ldy #$0
+        lda TEXT_NUM
+        
+WRITE_DIGIT_A_Y
+                
+        clc 
+        adc #48
+        tax
+
+        sta (TEXT_DST_LO),y
+        
+        lda TEXT_COL_1
+        sta (TEXT_COL_LO),y
+
+        tya
+        clc
+        adc #SCREEN_WIDTH
+        tay
+
+        txa 
+        clc
+        adc #128        
+        sta (TEXT_DST_LO),y
+
+        lda TEXT_COL_2
+        sta (TEXT_COL_LO),y
+
+        tya
+        sec
+        sbc #SCREEN_WIDTH
+        tay
+
+        rts
+
+
+WRITE_TEXT
+        
+        lda TEXT_POS_LO
+        clc
+        adc #<SCREEN_0
+        sta TEXT_DST_LO
+        lda TEXT_POS_HI
+        adc #>SCREEN_0
+        sta TEXT_DST_HI
+
+        lda TEXT_POS_LO
+        clc
+        adc #<COLOUR_RAM
+        sta TEXT_COL_LO
+        lda TEXT_POS_HI
+        adc #>COLOUR_RAM
+        sta TEXT_COL_HI
+
+        ldy #$0
+        lda (TEXT_SRC_LO),y
+        sta TEXT_LEN
+
+@loop1
+        iny
+
+        lda (TEXT_SRC_LO),y
+        sta (TEXT_DST_LO),y
+
+        lda TEXT_COL_1
+        sta (TEXT_COL_LO),y
+
+        cpy TEXT_LEN
+        bne @loop1
+
+        lda TEXT_DST_LO
+        clc
+        adc #SCREEN_WIDTH
+        sta TEXT_DST_LO
+        lda TEXT_DST_HI
+        adc #$0
+        sta TEXT_DST_HI
+
+        lda TEXT_COL_LO
+        clc
+        adc #SCREEN_WIDTH
+        sta TEXT_COL_LO
+        lda TEXT_COL_HI
+        adc #$0
+        sta TEXT_COL_HI
+
+        ldy #$0
+@loop2
+        iny
+
+        lda (TEXT_SRC_LO),y
+        clc
+        adc #128        
+        sta (TEXT_DST_LO),y
+
+        lda TEXT_COL_2
+        sta (TEXT_COL_LO),y
+
+        cpy TEXT_LEN
+        bne @loop2
+
+        rts
+        
 

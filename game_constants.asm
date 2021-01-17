@@ -7,7 +7,7 @@ GS_RUNNING      = $03
 GS_POST_LEVEL   = $04        
 GS_GAME_OVER    = $05
 
-FIRST_SPRITE    = $90
+FIRST_SPRITE    = $20
 
 ; Objects
 OBJ_NONE        = $00
@@ -77,7 +77,6 @@ TILE_SLIDE_MASK = $07
 ACT_MOVE        = $00
 ACT_CHOP        = $01
 ACT_COOK        = $02
-ACT_BLOCKED     = $03
 
 ; Messages
 MSG_NONE        = $00
@@ -92,6 +91,17 @@ MSG_GO          = $37
 MSG_1_OF_4      = $38
 MSG_2_OF_4      = $39
 MSG_3_OF_4      = $3A
+
+; Title screen constants
+LOGO_BURGER_SPR = FIRST_SPRITE + $3B 
+LOGO_MAYHEM_SPR = FIRST_SPRITE + $3F
+LINE_1_START    = 0
+LINE_1_STOP     = 52
+LINE_2_START    = 252
+LINE_2_STOP     = LINE_1_STOP + 46
+
+FG_FADE_LENGTH  = 5
+FG_FADE_FREQ    = 5
 
 ; Directions
 DIR_NONE        = $00
@@ -117,7 +127,9 @@ LVL_SHADOW_COL  = $0B ; Shadow colour
 LVL_WALL_BG     = $0C ; BG Colour index of wall
 LVL_WALL_FG_COL = $0D ; FG Wall colour
 LVL_WALL_CHAR   = $0E ; Wall character
-LVL_DATA_SIZE   = $0F
+LVL_DESC_LO     = $0F ; Description pointer
+LVL_DESC_HI     = $10 
+LVL_DATA_SIZE   = $11
 
 FRAME_LINE_SIZE = $10 ; Number of bytes for per-line sprite data
 
@@ -184,10 +196,8 @@ PL_ACT_INDEX    = $0D ;  Index of the object we're acting on.
 PL_MSG          = $0E ;  Message sprite to display
 PL_MSG_COUNT    = $0F ;  Time remaining to show message or $FF to keep it
 PL_UPDATE_OBJ   = $10 ;  Index of object to update
-PL_L_FOOT_TILE  = $11
-PL_R_FOOT_TILE  = $12
 
-P_DATA_SIZE     = $13  ; Size of player data
+P_DATA_SIZE     = $11  ; Size of player data
 
 PLAYER_FRAME_MASK = $3
 
@@ -195,7 +205,7 @@ MAP_WIDTH       = 14
 
 ANIM_FREQ       = $07 ; Frequency at which to change chef animation frames
 
-PLAYER_LINE     = 46  ; Line at which to initialize player sprites
+PLAYER_LINE     = 54  ; Line at which to initialize player sprites
 
 CHAR_ARROW_N    = CHAR_BASE + $68
 CHAR_ARROW_S    = CHAR_ARROW_N + $8
@@ -208,3 +218,5 @@ CHAR_BLOCKER_2  = CHAR_BLOCKER_1 + $8
 CHAR_BLOCKER_3  = CHAR_BLOCKER_2 + $8
 
 BLOCKER_SEQ_SIZE = 6
+
+LOOK_OFFSET_SIZE = 13

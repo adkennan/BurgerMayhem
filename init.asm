@@ -29,17 +29,14 @@ INIT_SYSTEM
 
         cli
 
-        lda #VMCSB_VAL
-        sta VMCSB
-        lda #SCROLY_VAL
-        sta SCROLY
-
         ; Hide border garbage
         lda #$FF        
         sta BORDER_PAT_LOC
-
-        jsr BLACK_SCREEN
         
+        ; Switch to video bank 1
+        lda #D2PRA_BANK1
+        sta D2PRA
+
         rts
 
 IRQ
