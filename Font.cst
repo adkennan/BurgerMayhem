@@ -130,11 +130,11 @@
       <data>0</data>
       <data>0</data>
       <data>0</data>
-      <data>32</data>
-      <data>32</data>
-      <data>32</data>
-      <data>32</data>
-      <data>32</data>
+      <data>48</data>
+      <data>48</data>
+      <data>48</data>
+      <data>48</data>
+      <data>48</data>
     </chardata>
   </character>
   <character>
@@ -183,10 +183,10 @@
       <data>0</data>
       <data>0</data>
       <data>103</data>
-      <data>127</data>
-      <data>127</data>
-      <data>91</data>
-      <data>75</data>
+      <data>255</data>
+      <data>255</data>
+      <data>219</data>
+      <data>219</data>
     </chardata>
   </character>
   <character>
@@ -263,7 +263,7 @@
       <data>62</data>
       <data>127</data>
       <data>103</data>
-      <data>102</data>
+      <data>98</data>
       <data>124</data>
     </chardata>
   </character>
@@ -287,10 +287,10 @@
       <data>0</data>
       <data>0</data>
       <data>99</data>
-      <data>103</data>
-      <data>103</data>
-      <data>103</data>
-      <data>103</data>
+      <data>99</data>
+      <data>99</data>
+      <data>99</data>
+      <data>99</data>
     </chardata>
   </character>
   <character>
@@ -650,11 +650,11 @@
       <data>0</data>
       <data>0</data>
       <data>0</data>
-      <data>32</data>
-      <data>32</data>
-      <data>32</data>
-      <data>32</data>
-      <data>32</data>
+      <data>48</data>
+      <data>48</data>
+      <data>48</data>
+      <data>48</data>
+      <data>48</data>
     </chardata>
   </character>
   <character>
@@ -1791,11 +1791,11 @@
   <character>
     <charcode>137</charcode>
     <chardata>
-      <data>32</data>
-      <data>32</data>
-      <data>32</data>
-      <data>32</data>
-      <data>32</data>
+      <data>48</data>
+      <data>48</data>
+      <data>48</data>
+      <data>48</data>
+      <data>48</data>
       <data>0</data>
       <data>0</data>
       <data>0</data>
@@ -1843,11 +1843,11 @@
   <character>
     <charcode>141</charcode>
     <chardata>
-      <data>75</data>
-      <data>75</data>
-      <data>91</data>
-      <data>91</data>
-      <data>75</data>
+      <data>219</data>
+      <data>219</data>
+      <data>219</data>
+      <data>219</data>
+      <data>219</data>
       <data>0</data>
       <data>0</data>
       <data>0</data>
@@ -1960,8 +1960,8 @@
   <character>
     <charcode>150</charcode>
     <chardata>
-      <data>99</data>
-      <data>98</data>
+      <data>103</data>
+      <data>102</data>
       <data>118</data>
       <data>62</data>
       <data>60</data>

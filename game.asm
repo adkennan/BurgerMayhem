@@ -226,27 +226,32 @@ TITLE
 
         jsr TITLE_INIT
 
-@loop
+@loop_in
         jsr TITLE_IN
+        cmp #$0
+        beq @loop_in
+
+@loop
+        jsr TITLE_HOLD
 
         ldx #$0
         jsr CHECK_JOYSTICK
         lda P_BUTTON
         cmp #$1
-        beq @start
+        beq @loop_out
         
         ldx #$1
         jsr CHECK_JOYSTICK
         lda P_BUTTON
         cmp #$1
-        beq @start
+        beq @loop_out
         
         jmp @loop
 
-@start
+@loop_out
         jsr TITLE_OUT
-        cmp #$1
-        bne @start
+        cmp #$0
+        beq @loop_out
      
         jsr FADE_FG_OUT
         jsr CLEAR_SCREEN
@@ -271,13 +276,12 @@ TITLE_HOLD
 
         jsr TITLE_L1_UPDATE
 
-        lda #LINE_2_STOP - 2
+        lda #LINE_2_STOP - 4
 @wait_2
         cmp RASTER
         bne @wait_2
 
         jsr TITLE_L2_UPDATE
-        
         rts
 
 TITLE_IN
@@ -317,7 +321,7 @@ TITLE_IN
         cmp #LINE_2_STOP
         beq @line_2_in_stop
         sec
-        sbc #$2
+        sbc #$4
         sta TITLE_L2_Y
 
         lda #$0
@@ -335,7 +339,7 @@ TITLE_OUT
         bne @wait_1
 
         jsr TITLE_L1_UPDATE
-        
+
         lda #LINE_2_STOP - 2
 @wait_2
         cmp RASTER
@@ -343,29 +347,26 @@ TITLE_OUT
 
         jsr TITLE_L2_UPDATE
         
-        lda TITLE_L2_Y
-        cmp #LINE_2_START
-        beq @line_2_out_stop
-        clc
-        adc #$2
-        sta TITLE_L2_Y
-
-        lda #$0
-        rts
-
-@line_2_out_stop
-
         lda TITLE_L1_Y
         cmp #LINE_1_START
         beq @line_1_out_stop
         sec
-        sbc #$2
+        sbc #$4
         sta TITLE_L1_Y
+
+@line_1_out_stop
+
+        lda TITLE_L2_Y
+        cmp #LINE_2_START
+        beq @line_2_out_stop
+        clc
+        adc #$4
+        sta TITLE_L2_Y
         
         lda #$0
         rts
 
-@line_1_out_stop   
+@line_2_out_stop   
         lda #$1        
         rts
 
@@ -603,6 +604,8 @@ PRE_LEVEL
         ldy #LVL_TL_M
         print_num_ptr_y L_CURR_LEVEL_LO, 537, COL_ORANGE, COL_RED
 
+        print STR_COLON, 538, COL_ORANGE, COL_RED
+
         ldy #LVL_TL_S_HI
         print_num_ptr_y L_CURR_LEVEL_LO, 539, COL_ORANGE, COL_RED
         ldy #LVL_TL_S_LO
@@ -612,7 +615,7 @@ PRE_LEVEL
         print_num_ptr_y L_CURR_LEVEL_LO, 617, COL_ORANGE, COL_RED
 
         ldy #LVL_DESC_LO
-        print_ptr_y L_CURR_LEVEL_LO, 720, COL_LGREEN, COL_GREEN
+        print_ptr_y_ctr L_CURR_LEVEL_LO, 720, COL_LGREEN, COL_GREEN
 
         jsr FADE_FG_IN_INIT
 

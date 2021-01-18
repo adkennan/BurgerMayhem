@@ -1043,6 +1043,10 @@ TEXT_SCREEN
         rts
 
 GFX_SCREEN
+        lda #$0
+        sta XXPAND
+        sta YXPAND
+
         lda #VMCSB_GFX
         sta VMCSB
 
@@ -1675,6 +1679,22 @@ WRITE_DIGIT_A_Y
 
         rts
 
+WRITE_TEXT_CENTER
+
+        lda #SCREEN_WIDTH
+        ldy #$0
+        sec
+        sbc (TEXT_SRC_LO),y
+        lsr
+        
+        clc
+        adc TEXT_POS_LO
+        sta TEXT_POS_LO
+        lda TEXT_POS_HI
+        adc #$0
+        sta TEXT_POS_HI        
+
+        ; Fall throught to WRITE_TEXT
 
 WRITE_TEXT
         

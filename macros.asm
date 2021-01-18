@@ -128,3 +128,27 @@ defm    print_ptr_y
         jsr WRITE_TEXT
 
         endm
+
+defm    print_ptr_y_ctr
+
+        lda (/1),y
+        sta TEXT_SRC_LO
+        iny
+        lda (/1),y
+        sta TEXT_SRC_HI
+
+        lda #</2
+        sta TEXT_POS_LO
+        lda #>/2
+        sta TEXT_POS_HI
+
+        lda #/3
+        sta TEXT_COL_1
+
+        lda #/4
+        sta TEXT_COL_2
+
+        jsr WRITE_TEXT_CENTER
+
+        endm
+
