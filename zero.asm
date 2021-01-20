@@ -192,4 +192,6 @@ TEXT_COL_1      = $E7
 TEXT_COL_2      = $E8
 TEXT_COL_LO     = $E9
 TEXT_COL_HI     = $EA
+TEXT_COL_LO_2   = $EB
+TEXT_COL_HI_2   = $EC
 TEXT_NUM        = $E2

@@ -617,13 +617,73 @@ PRE_LEVEL
         ldy #LVL_DESC_LO
         print_ptr_y_ctr L_CURR_LEVEL_LO, 720, COL_LGREEN, COL_GREEN
 
-        jsr FADE_FG_IN_INIT
+        lda #<440
+        sta TEXT_POS_LO
+        lda #>440
+        sta TEXT_POS_HI
+        jsr FADE_LINE_IN_INIT
 
+@text_in_1
+        jsr TITLE_HOLD
+
+        jsr FADE_LINE_IN
+        cmp #$1
+        bne @text_in_1
+
+        lda #<520
+        sta TEXT_POS_LO
+        lda #>520
+        sta TEXT_POS_HI
+        jsr FADE_LINE_IN_INIT
+
+@text_in_2
+        jsr TITLE_HOLD
+
+        jsr FADE_LINE_IN
+        cmp #$1
+        bne @text_in_2
+
+        lda #<600
+        sta TEXT_POS_LO
+        lda #>600
+        sta TEXT_POS_HI
+        jsr FADE_LINE_IN_INIT
+
+@text_in_3
+        jsr TITLE_HOLD
+
+        jsr FADE_LINE_IN
+        cmp #$1
+        bne @text_in_3
+
+        lda #<720
+        sta TEXT_POS_LO
+        lda #>720
+        sta TEXT_POS_HI
+        jsr FADE_LINE_IN_INIT
+
+@text_in_4
+        jsr TITLE_HOLD
+
+        jsr FADE_LINE_IN
+        cmp #$1
+        bne @text_in_4
+
+        lda #<920
+        sta TEXT_POS_LO
+        lda #>920
+        sta TEXT_POS_HI
+        jsr FADE_LINE_IN_INIT
+
+@text_in_5
+        jsr TITLE_HOLD
+
+        jsr FADE_LINE_IN
+        cmp #$1
+        bne @text_in_5
 
 @loop
         jsr TITLE_HOLD
-
-        jsr FADE_FG_IN
 
         ldx #$0
         jsr CHECK_JOYSTICK

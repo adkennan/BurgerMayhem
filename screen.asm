@@ -1376,6 +1376,98 @@ FADE_IN
         rts
 
 
+FADE_LINE_IN_INIT
+
+        lda TEXT_POS_LO
+        clc
+        adc #<REAL_COLOUR_RAM
+        sta TEXT_COL_LO
+        lda TEXT_POS_HI
+        adc #>REAL_COLOUR_RAM
+        sta TEXT_COL_HI
+
+        lda TEXT_COL_LO
+        clc
+        adc #<SCREEN_WIDTH
+        sta TEXT_COL_LO_2
+        lda TEXT_COL_HI
+        adc #>SCREEN_WIDTH
+        sta TEXT_COL_HI_2
+        
+        lda TEXT_POS_LO
+        clc
+        adc #<COLOUR_RAM
+        sta TEXT_SRC_LO
+        lda TEXT_POS_HI
+        adc #>COLOUR_RAM
+        sta TEXT_SRC_HI        
+
+        lda #$0
+        sta FG_FADE_INDEX
+        rts
+
+FADE_LINE_IN
+        jsr FG_FADE_WAIT
+
+        ldy FG_FADE_INDEX
+        cpy #SCREEN_WIDTH
+        bcs @sub_1
+
+        lda #COL_DGREY
+        sta (TEXT_COL_LO),y                
+        sta (TEXT_COL_LO_2),y
+
+@sub_1
+        dey
+        cpy #$0
+        bcc @sub_2
+        cpy #SCREEN_WIDTH
+        bcs @sub_2
+
+        lda #COL_MGREY
+        sta (TEXT_COL_LO),y
+        sta (TEXT_COL_LO_2),y
+
+@sub_2        
+        dey
+        cpy #$0
+        bcc @sub_3
+        cpy #SCREEN_WIDTH
+        bcs @sub_3
+
+        lda #COL_LGREY
+        sta (TEXT_COL_LO),y
+        sta (TEXT_COL_LO_2),y
+
+@sub_3        
+        dey
+        cpy #$0
+        bcc @sub_3
+        cpy #SCREEN_WIDTH
+        bcs @sub_3
+
+        lda (TEXT_SRC_LO),y
+        sta (TEXT_COL_LO),y
+        tya
+        clc
+        adc #SCREEN_WIDTH
+        tay
+        lda (TEXT_SRC_LO),y
+        sta (TEXT_COL_LO),y
+
+        lda FG_FADE_INDEX
+        clc
+        adc #$1
+        sta FG_FADE_INDEX
+
+        cmp #SCREEN_WIDTH + 3
+        beq @done
+        lda #$0
+        rts
+@done
+        lda #$1
+        rts
+
 FADE_FG_IN_INIT
         lda #$0
         sta FG_FADE_INDEX
@@ -1508,6 +1600,7 @@ FADE_FG_OUT
         sec
         sbc #$1
         sta FG_FADE_COUNT
+        cmp #$0
         beq @do_fade
 
         lda #$1
