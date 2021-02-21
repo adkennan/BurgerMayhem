@@ -106,21 +106,21 @@ BLOCK_PLAYER
 
         lda P_L
         tax
-        and #TILE_BLOCKER_0
-        cmp #$0
-        bne @on_blocker
+        and #TILE_BLOCKER_MASK
+        cmp #TILE_BLOCKER_0
+        beq @on_blocker
 
         lda P_M
         tax
-        and #TILE_BLOCKER_0
-        cmp #$0
-        bne @on_blocker
+        and #TILE_BLOCKER_MASK
+        cmp #TILE_BLOCKER_0
+        beq @on_blocker
 
         lda P_R
         tax
-        and #TILE_BLOCKER_0
-        cmp #$0
-        beq @not_blocked
+        and #TILE_BLOCKER_MASK
+        cmp #TILE_BLOCKER_0
+        bne @not_blocked
 
 @on_blocker
 
@@ -152,20 +152,6 @@ BLOCK_PLAYER
 
 LOOK_PLAYER
         jsr P_RESET_MAP_POS
-
-        ;ldx #$0
-;@loop
-;        ldy PLAYER_LOOK_OFFSET,x
-        
-;        lda (P_MAP_POS_LO),y
-;        sta P_LOOK_TILES,x
-
-        ;jsr SHOW_FOOT
-
-;        inx
-;        cpx #LOOK_OFFSET_SIZE
-;        bne @loop
-
 
         ldy #0
         lda (P_MAP_POS_LO),y
@@ -745,8 +731,9 @@ P_DO_SERVE
         bne @show_error         ; No, show missing ingredient
 
 
-                                ; Yes, increment the score
-        lda L_BURGER_COUNT_LO     ; Increment the lo digit
+        inc L_BURGER_COUNT      ; Yes, increment the score
+
+        lda L_BURGER_COUNT_LO   ; Increment the lo digit
         cmp #9
         beq @inc_hi
         clc
@@ -1289,14 +1276,13 @@ SLIDE_PLAYER
 
 IS_ON_WALL
         tax
-        and #TILE_WALL_MASK        
-        cmp #$0
-        beq @not_wall
+        cmp #FIRST_WALL_TILE
+        bcc @not_wall
 
         txa
-        and #TILE_BLOCKER_0
-        cmp #$0
-        beq @is_wall
+        and #TILE_BLOCKER_MASK
+        cmp #TILE_BLOCKER_0
+        bne @is_wall
 
         txa
         and #$3

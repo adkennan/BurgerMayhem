@@ -78,26 +78,21 @@ INIT_LEVEL
         lda #$0
         sta L_BURGER_COUNT_LO
         sta L_BURGER_COUNT_HI
+        sta L_BURGER_COUNT
 
-        ldy #LVL_FLOOR_COL      ; Level styling
+        ldy #LVL_THEME_LO       ; Level Theme
         lda (L_CURR_LEVEL_LO),y
-        sta M_FLOOR_COL
+        sta L_THEME_LO
 
-        ldy #LVL_SHADOW_COL
+        ldy #LVL_THEME_HI
         lda (L_CURR_LEVEL_LO),y
-        sta M_SHADOW_COL
+        sta L_THEME_HI
 
-        ldy #LVL_WALL_BG
-        lda (L_CURR_LEVEL_LO),y
-        sta M_WALL_BG
+        ldy #THEME_SHADOW_COL
+        lda (L_THEME_LO),y
+        sta L_FLOOR_FG_COL
 
-        ldy #LVL_WALL_FG_COL
-        lda (L_CURR_LEVEL_LO),y
-        sta M_WALL_FG_COL
-
-        ldy #LVL_WALL_CHAR
-        lda (L_CURR_LEVEL_LO),y
-        sta M_WALL_CHAR
+        jsr COPY_THEME_CHARS
 
         ldy #LVL_P1_X           ; Set up player 1
         lda (L_CURR_LEVEL_LO),y
@@ -134,6 +129,83 @@ INIT_LEVEL
         jsr INIT_PLAYER
 
         rts
+
+COPY_THEME_CHARS
+
+        ldy #$0
+        
+        lda #$0
+        sta L_CHAR_DST_HI
+
+        lda #CH_THEME_00                            ; Get the pointer to the dest char
+        sta L_CHAR_DST_LO        
+        asl L_CHAR_DST_LO
+        rol L_CHAR_DST_HI
+        asl L_CHAR_DST_LO
+        rol L_CHAR_DST_HI
+        asl L_CHAR_DST_LO
+        rol L_CHAR_DST_HI
+        lda L_CHAR_DST_LO
+        clc 
+        adc #<CHAR_BASE
+        sta L_CHAR_DST_LO
+        lda L_CHAR_DST_HI
+        adc #>CHAR_BASE
+        sta L_CHAR_DST_HI
+
+@loop_char
+        lda #$0
+        sta L_CHAR_SRC_HI
+
+        tya
+        tax
+
+        clc
+        adc #THEME_SRC_CHARS
+        tay
+        lda (L_THEME_LO),y                      ; Get the pointer to the source char
+        sta L_CHAR_SRC_LO        
+        asl L_CHAR_SRC_LO
+        rol L_CHAR_SRC_HI
+        asl L_CHAR_SRC_LO
+        rol L_CHAR_SRC_HI
+        asl L_CHAR_SRC_LO
+        rol L_CHAR_SRC_HI
+        lda L_CHAR_SRC_LO
+        clc 
+        adc #<CHAR_BASE
+        sta L_CHAR_SRC_LO
+        lda L_CHAR_SRC_HI
+        adc #>CHAR_BASE
+        sta L_CHAR_SRC_HI
+        
+        ldy #$0                                 ; Copy the char
+@loop_byte     
+        lda (L_CHAR_SRC_LO),y
+        sta (L_CHAR_DST_LO),y
+           
+        iny
+        cpy #$8
+        bne @loop_byte
+
+        lda L_CHAR_DST_LO
+        clc
+        adc #$8
+        sta L_CHAR_DST_LO
+        lda L_CHAR_DST_HI
+        adc #$0
+        sta L_CHAR_DST_HI
+
+        txa
+        tay
+
+        iny
+        cpy #THEME_SRC_CHAR_COUNT
+        bne @loop_char
+
+        rts
+
+        
 
 INIT_PLAYER
 
@@ -371,6 +443,11 @@ TITLE_OUT
         rts
 
 TITLE_L1_UPDATE
+        lda #$0
+        sta SPMC
+        lda #$FF
+        sta SPENA
+
         lda TITLE_L1_Y        
         sta SP0Y
         sta SP1Y
@@ -593,29 +670,29 @@ PRE_LEVEL
 
         jsr INIT_LEVEL
 
-        print STR_LEVEL, 450, COL_ORANGE, COL_RED
-        print STR_TIME_LIMIT, 525, COL_ORANGE, COL_RED
-        print STR_BURGERS_REQUIRED, 600, COL_ORANGE, COL_RED
-        print STR_PRESS_FIRE, 934, COL_LBLUE, COL_BLUE 
+        print STR_LEVEL, 455, COL_ORANGE, COL_RED                       
+        print STR_TIME_LIMIT, 685, COL_ORANGE, COL_RED                  
+        print STR_BURGERS_REQUIRED, 760, COL_ORANGE, COL_RED            
+        print STR_PRESS_FIRE, 934, COL_LBLUE, COL_BLUE                  
 
         lda G_LEVEL_NUM
-        print_num 457, COL_ORANGE, COL_RED
+        print_num 463, COL_ORANGE, COL_RED
 
         ldy #LVL_TL_M
-        print_num_ptr_y L_CURR_LEVEL_LO, 537, COL_ORANGE, COL_RED
-
-        print STR_COLON, 538, COL_ORANGE, COL_RED
+        print_num_ptr_y L_CURR_LEVEL_LO, 697, COL_ORANGE, COL_RED
 
         ldy #LVL_TL_S_HI
-        print_num_ptr_y L_CURR_LEVEL_LO, 539, COL_ORANGE, COL_RED
+        print_num_ptr_y L_CURR_LEVEL_LO, 699, COL_ORANGE, COL_RED
         ldy #LVL_TL_S_LO
-        print_num_ptr_y L_CURR_LEVEL_LO, 540, COL_ORANGE, COL_RED
+        print_num_ptr_y L_CURR_LEVEL_LO, 700, COL_ORANGE, COL_RED
+
+        print STR_COLON, 697, COL_ORANGE, COL_RED
 
         ldy #LVL_TARGET
-        print_num_ptr_y L_CURR_LEVEL_LO, 617, COL_ORANGE, COL_RED
+        print_num_ptr_y L_CURR_LEVEL_LO, 777, COL_ORANGE, COL_RED
 
         ldy #LVL_DESC_LO
-        print_ptr_y_ctr L_CURR_LEVEL_LO, 720, COL_LGREEN, COL_GREEN
+        print_ptr_y_ctr L_CURR_LEVEL_LO, 560, COL_LGREEN, COL_GREEN     
 
         lda #<440
         sta TEXT_POS_LO
@@ -630,9 +707,9 @@ PRE_LEVEL
         cmp #$1
         bne @text_in_1
 
-        lda #<520
+        lda #<560
         sta TEXT_POS_LO
-        lda #>520
+        lda #>560
         sta TEXT_POS_HI
         jsr FADE_LINE_IN_INIT
 
@@ -643,9 +720,9 @@ PRE_LEVEL
         cmp #$1
         bne @text_in_2
 
-        lda #<600
+        lda #<680
         sta TEXT_POS_LO
-        lda #>600
+        lda #>680
         sta TEXT_POS_HI
         jsr FADE_LINE_IN_INIT
 
@@ -656,9 +733,9 @@ PRE_LEVEL
         cmp #$1
         bne @text_in_3
 
-        lda #<720
+        lda #<760
         sta TEXT_POS_LO
-        lda #>720
+        lda #>760
         sta TEXT_POS_HI
         jsr FADE_LINE_IN_INIT
 
@@ -675,15 +752,21 @@ PRE_LEVEL
         sta TEXT_POS_HI
         jsr FADE_LINE_IN_INIT
 
-@text_in_5
+@loop
         jsr TITLE_HOLD
 
         jsr FADE_LINE_IN
         cmp #$1
-        bne @text_in_5
+        bne @no_reset
 
-@loop
-        jsr TITLE_HOLD
+        lda #<920
+        sta TEXT_POS_LO
+        lda #>920
+        sta TEXT_POS_HI
+        jsr FADE_LINE_IN_INIT
+
+@no_reset
+
 
         ldx #$0
         jsr CHECK_JOYSTICK
@@ -735,12 +818,126 @@ POST_LEVEL
         jsr CLEAR_SCREEN
         jsr TEXT_SCREEN
 
+        jsr TITLE_INIT
+        
+@loop_title_in
+        jsr TITLE_IN
+        cmp #$1
+        bne @loop_title_in
+
+        print STR_LEVEL, 455, COL_ORANGE, COL_RED
+        lda G_LEVEL_NUM
+        print_num 463, COL_ORANGE, COL_RED
+        ldy #LVL_DESC_LO
+        print_ptr_y_ctr L_CURR_LEVEL_LO, 520, COL_LGREEN, COL_GREEN
+
+        print STR_YOU_MADE, 649, COL_ORANGE, COL_RED
+        print STR_BURGERS, 661, COL_ORANGE, COL_RED
+
+        lda L_BURGER_COUNT
+        print_num 659, COL_ORANGE, COL_RED
+        
+        print STR_YOU_NEEDED, 732, COL_ORANGE, COL_RED
+        ldy #LVL_TARGET
+        print_num_ptr_y L_CURR_LEVEL_LO, 744, COL_ORANGE, COL_RED
+
+        ldy #LVL_TARGET
+        lda (L_CURR_LEVEL_LO),y
+        cmp L_BURGER_COUNT
+        bcc @success
+
+        print STR_TOO_BAD, 926, COL_LBLUE, COL_BLUE
+        print STR_ARROW, 937, COL_BLACK, COL_BLACK
+        print STR_ARROW, 943, COL_BLACK, COL_BLACK
+
+        jmp @fade_in
+
+@success
+        print STR_PRESS_FIRE, 934, COL_LBLUE, COL_BLUE 
+
+@fade_in
+        lda #<440
+        sta TEXT_POS_LO
+        lda #>440
+        sta TEXT_POS_HI
+        jsr FADE_LINE_IN_INIT
+
+@text_in_1
+        jsr TITLE_HOLD
+
+        jsr FADE_LINE_IN
+        cmp #$1
+        bne @text_in_1
+
+        lda #<520
+        sta TEXT_POS_LO
+        lda #>520
+        sta TEXT_POS_HI
+        jsr FADE_LINE_IN_INIT
+
+@text_in_2
+        jsr TITLE_HOLD
+
+        jsr FADE_LINE_IN
+        cmp #$1
+        bne @text_in_2
+
+        lda #<640
+        sta TEXT_POS_LO
+        lda #>640
+        sta TEXT_POS_HI
+        jsr FADE_LINE_IN_INIT
+
+@text_in_3
+        jsr TITLE_HOLD
+
+        jsr FADE_LINE_IN
+        cmp #$1
+        bne @text_in_3
+
+        lda #<720
+        sta TEXT_POS_LO
+        lda #>720
+        sta TEXT_POS_HI
+        jsr FADE_LINE_IN_INIT
+
+@text_in_4
+        jsr TITLE_HOLD
+
+        jsr FADE_LINE_IN
+        cmp #$1
+        bne @text_in_4
+
+        lda #<920
+        sta TEXT_POS_LO
+        lda #>920
+        sta TEXT_POS_HI
+        jsr FADE_LINE_IN_INIT
+
 @loop
+        jsr TITLE_HOLD
+
+        jsr FADE_LINE_IN
+        cmp #$1
+        bne @no_reset
+
+        lda #<920
+        sta TEXT_POS_LO
+        lda #>920
+        sta TEXT_POS_HI
+        jsr FADE_LINE_IN_INIT
+
+@no_reset
+
         ldx #$0
         jsr CHECK_JOYSTICK
         lda P_BUTTON
         cmp #$1
         beq @start
+
+        lda P_STICK
+        cmp #$0 
+        bne @change_choice
         
         ldx #$1
         jsr CHECK_JOYSTICK
@@ -748,11 +945,28 @@ POST_LEVEL
         cmp #$1
         beq @start
         
+        lda P_STICK
+        beq @loop
+
+@change_choice
+        
         jmp @loop
 
 @start
+        jsr FADE_FG_OUT_INIT
 
-        jsr FADE_OUT
+@loop_fade_out
+        jsr TITLE_HOLD
+
+        jsr FADE_FG_OUT
+        cmp #$0
+        bne @loop_fade_out
+
+@title_slide_out
+        jsr TITLE_OUT
+        cmp #$1
+        bne @title_slide_out
+
         jsr CLEAR_SCREEN
 
         lda #GS_PRE_LEVEL

@@ -58,8 +58,9 @@ incasm "player.asm"
 incasm "screen.asm"
 incasm "util.asm"
 
-*=$2800
+*=$3000
 incasm "levels.asm"
+incasm "themes.asm"
 incasm "maps.asm"
 incasm "strings.asm"
 incasm "lookup.asm"

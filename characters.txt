@@ -1,0 +1,85 @@
+* Graphics Set
+
+00      BLANK / FLOOR
+
+01      BLOCKER 1
+02      BLOCKER 2
+03      BLOCKER 3
+04      BLOCKER 4
+
+05      SLIDER N
+06      SLIDER S
+07      SLIDER E
+08      SLIDER W
+
+09      BOX TOP LEFT
+0A      BOX TOP RIGHT
+0B      BOX BOTTOM RIGHT
+0C      BOX BOTTOM LEFT
+0D      BOX TOP
+0E      BOX RIGHT
+0F      BOX BOTTOM / SHADOW BOTTOM
+10      BOX LEFT
+
+11      SHADOW N
+12      SHADOW E
+13      SHADOW W
+14      SHADOW N NW W
+15      SHADOW N NE E
+16      SHADOW S SW W
+17      SHADOW S SE E
+18      SHADOW NW
+19      SHADOW NE
+1A      SHADOW SE
+1B      SHADOW SW
+1C      SHADOW N NE
+1D      SHADOW N NW
+
+1E      KNIFE
+1F      STOVE
+20      SERVE
+21      TOMATO
+22      LETTUCE
+23      PATTY
+24      BUN
+25      PLATE
+26      BIN     
+
+27      Theme 1
+28      Theme 2
+29      Theme 3
+2A      Theme 4
+2B      Theme 5
+2C      Theme 6
+2D      Theme 7
+2E      Theme 8
+2F      Theme 9
+30      Theme 10
+31      Theme 11
+32      Theme 12
+33      Theme 13
+34      Theme 14
+35      Theme 15
+36      Theme 16
+37      Theme 17
+38      Theme 18
+39      Theme 19
+3A      Theme 20
+3B      Theme 21
+3C      Theme 22
+3D      Theme 23
+3E      Theme 24
+3F      Theme 25
+
+Theme Set
+
+0 - 8   Bushes
+9 - 17  Stones
+18 - 26 Puddle
+27      Grass
+28      Grass
+29      Grass
+30 - 38 Bricks
+39 - 47 Window
+48 - 56 Sand / Waves
+57 - 65 Tree

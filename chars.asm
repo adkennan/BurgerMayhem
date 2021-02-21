@@ -1,7 +1,8 @@
 incbin "chars_text.bin"
 *=$7800
 CHAR_BASE
-incbin "chars_game.bin"
+incbin "chars_gfx.bin"
+incbin "chars_walls.bin"
 
 BLOCKER_CHAR_SRC_0
         BYTE    0,0,0,0,0,0,0,0

@@ -1,11 +1,17 @@
+;__SHOW_TIMING__ = 1
+
 defm    time_on 
+ifdef __SHOW_TIMING__
         lda #COL_/1
         sta EXTCOL
+endif        
         endm
 
 defm    time_off
+ifdef __SHOW_TIMING__
         lda #COL_BLACK
         sta EXTCOL
+endif
         endm
 
 defm    plda

@@ -53,6 +53,17 @@
     <!--End of screen designer settings-->
     <SourceFiles>
         <SourceFile>
+            <Name>characters.txt</Name>
+            <PrgName />
+            <FileType>5</FileType>
+            <IncludeInBuild>False</IncludeInBuild>
+            <Regions />
+            <Breakpoints />
+            <Bookmarks />
+            <Topmost>False</Topmost>
+            <FileOpen>True</FileOpen>
+        </SourceFile>
+        <SourceFile>
             <Name>chars.asm</Name>
             <PrgName />
             <FileType>2</FileType>
@@ -62,6 +73,17 @@
             <Bookmarks />
             <Topmost>False</Topmost>
             <FileOpen>True</FileOpen>
+        </SourceFile>
+        <SourceFile>
+            <Name>commands.txt</Name>
+            <PrgName />
+            <FileType>5</FileType>
+            <IncludeInBuild>False</IncludeInBuild>
+            <Regions />
+            <Breakpoints />
+            <Bookmarks />
+            <Topmost>False</Topmost>
+            <FileOpen>False</FileOpen>
         </SourceFile>
         <SourceFile>
             <Name>Font.cst</Name>
@@ -97,6 +119,17 @@
             <FileOpen>True</FileOpen>
         </SourceFile>
         <SourceFile>
+            <Name>Gfx.cst</Name>
+            <PrgName />
+            <FileType>6</FileType>
+            <IncludeInBuild>True</IncludeInBuild>
+            <Regions />
+            <Breakpoints />
+            <Bookmarks />
+            <Topmost>False</Topmost>
+            <FileOpen>False</FileOpen>
+        </SourceFile>
+        <SourceFile>
             <Name>init.asm</Name>
             <PrgName />
             <FileType>2</FileType>
@@ -117,17 +150,6 @@
             <Bookmarks />
             <Topmost>False</Topmost>
             <FileOpen>True</FileOpen>
-        </SourceFile>
-        <SourceFile>
-            <Name>KM.cst</Name>
-            <PrgName />
-            <FileType>6</FileType>
-            <IncludeInBuild>True</IncludeInBuild>
-            <Regions />
-            <Breakpoints />
-            <Bookmarks />
-            <Topmost>False</Topmost>
-            <FileOpen>False</FileOpen>
         </SourceFile>
         <SourceFile>
             <Name>KM.spt</Name>
@@ -235,8 +257,8 @@
             <IncludeInBuild>False</IncludeInBuild>
             <Regions />
             <Breakpoints />
-            <Bookmarks />
-            <Topmost>True</Topmost>
+            <Bookmarks>438,</Bookmarks>
+            <Topmost>False</Topmost>
             <FileOpen>True</FileOpen>
         </SourceFile>
         <SourceFile>
@@ -248,7 +270,7 @@
             <Breakpoints />
             <Bookmarks />
             <Topmost>False</Topmost>
-            <FileOpen>True</FileOpen>
+            <FileOpen>False</FileOpen>
         </SourceFile>
         <SourceFile>
             <Name>strings.asm</Name>
@@ -273,6 +295,17 @@
             <FileOpen>True</FileOpen>
         </SourceFile>
         <SourceFile>
+            <Name>themes.asm</Name>
+            <PrgName />
+            <FileType>2</FileType>
+            <IncludeInBuild>False</IncludeInBuild>
+            <Regions />
+            <Breakpoints />
+            <Bookmarks>40,</Bookmarks>
+            <Topmost>False</Topmost>
+            <FileOpen>True</FileOpen>
+        </SourceFile>
+        <SourceFile>
             <Name>tiles.sdd</Name>
             <PrgName />
             <FileType>9</FileType>
@@ -288,6 +321,17 @@
             <PrgName />
             <FileType>2</FileType>
             <IncludeInBuild>False</IncludeInBuild>
+            <Regions />
+            <Breakpoints />
+            <Bookmarks />
+            <Topmost>False</Topmost>
+            <FileOpen>False</FileOpen>
+        </SourceFile>
+        <SourceFile>
+            <Name>Walls.cst</Name>
+            <PrgName />
+            <FileType>6</FileType>
+            <IncludeInBuild>True</IncludeInBuild>
             <Regions />
             <Breakpoints />
             <Bookmarks />

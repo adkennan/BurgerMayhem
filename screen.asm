@@ -5,7 +5,7 @@ CLEAR_SCREEN
         ldx #$0
         
 @loop
-        lda #$1D
+        lda #CH_BLANK
         sta SCREEN_0,x
         sta SCREEN_1,x
         sta SCREEN_2,x
@@ -82,20 +82,20 @@ DRAW_MAP
         ldy #$0
 @loop1
         lda (L_MAP_LO),y
+        sta M_TILE
         cmp #TILE_EOL                   
         beq @next_line
 
         jsr DRAW_LVLMAP
         lda (L_MAP_LO),y        
 
-        cmp #TILE_FLOOR                 
-        bne @draw_tile
-        
-        jsr DRAW_FLOOR
-        jmp @next_tile
-
-@draw_tile
         jsr DRAW_TILE
+
+        lda (L_MAP_LO),y
+        cmp #FIRST_WALL_TILE
+        bcs @next_tile
+        
+        jsr DRAW_SHADOW
 
 @next_tile
         jsr NEXT_TILE
@@ -208,6 +208,13 @@ NEXT_LINE
         rts
 
 DRAW_TILE     
+        lda (L_MAP_LO),y
+
+        cmp #TILE_VOID
+        bne @is_bench
+        jsr DRAW_VOID
+        rts
+@is_bench
         cmp #TILE_BENCH
         bne @is_stove
         jsr DRAW_BENCH
@@ -256,15 +263,57 @@ DRAW_TILE
         rts
 @is_bin
         cmp #TILE_BIN
-        bne @is_wall
+        bne @is_wall_0
         jsr DRAW_BIN
         rts
-@is_wall
-        cmp #TILE_WALL
-        bne @is_slider_n
-        jsr DRAW_WALL
+@is_wall_0
+        cmp #TILE_WALL_0
+        bne @is_wall_1
+        lda #THEME_W0_CHARS
+        jsr DRAW_THEME_TILE
         rts
-
+@is_wall_1
+        cmp #TILE_WALL_1
+        bne @is_wall_2
+        lda #THEME_W1_CHARS
+        jsr DRAW_THEME_TILE
+        rts
+@is_wall_2
+        cmp #TILE_WALL_2
+        bne @is_wall_3
+        lda #THEME_W2_CHARS
+        jsr DRAW_THEME_TILE
+        rts
+@is_wall_3
+        cmp #TILE_WALL_3
+        bne @is_floor_0
+        lda #THEME_W3_CHARS
+        jsr DRAW_THEME_TILE
+        rts
+@is_floor_0
+        cmp #TILE_FLOOR_0
+        bne @is_floor_1
+        lda #THEME_F0_CHARS
+        jsr DRAW_THEME_TILE
+        rts
+@is_floor_1
+        cmp #TILE_FLOOR_1
+        bne @is_floor_2
+        lda #THEME_F1_CHARS
+        jsr DRAW_THEME_TILE
+        rts
+@is_floor_2
+        cmp #TILE_FLOOR_2
+        bne @is_floor_3
+        lda #THEME_F2_CHARS
+        jsr DRAW_THEME_TILE
+        rts
+@is_floor_3
+        cmp #TILE_FLOOR_3
+        bne @is_slider_n
+        lda #THEME_F3_CHARS
+        jsr DRAW_THEME_TILE
+        rts
 @is_slider_n
         cmp #TILE_SLIDER_N
         bne @is_slider_s
@@ -349,9 +398,9 @@ ADD_SPRITE_POS
 
 DRAW_TOMATO
 
-        lda #48
+        lda #CH_TOMATO
         sta CHAR_INDEX
-        lda #BG_COL_3
+        lda #BG_COL_1
         sta CHAR_BG_COL
         lda #COL_RED
         sta CHAR_COL
@@ -362,9 +411,9 @@ DRAW_TOMATO
 
 DRAW_LETTUCE
 
-        lda #49
+        lda #CH_LETTUCE
         sta CHAR_INDEX
-        lda #BG_COL_3
+        lda #BG_COL_1
         sta CHAR_BG_COL
         lda #COL_GREEN
         sta CHAR_COL
@@ -374,9 +423,9 @@ DRAW_LETTUCE
         rts
 
 DRAW_MEAT
-        lda #50
+        lda #CH_PATTY
         sta CHAR_INDEX
-        lda #BG_COL_3
+        lda #BG_COL_1
         sta CHAR_BG_COL
         lda #COL_LRED
         sta CHAR_COL
@@ -386,9 +435,9 @@ DRAW_MEAT
         rts
 
 DRAW_BUN
-        lda #51
+        lda #CH_BUN
         sta CHAR_INDEX
-        lda #BG_COL_3
+        lda #BG_COL_1
         sta CHAR_BG_COL
         lda #COL_ORANGE
         sta CHAR_COL
@@ -398,9 +447,9 @@ DRAW_BUN
         rts
 
 DRAW_PLATE
-        lda #52
+        lda #CH_PLATE
         sta CHAR_INDEX
-        lda #BG_COL_3
+        lda #BG_COL_1
         sta CHAR_BG_COL
         lda #COL_WHITE
         sta CHAR_COL
@@ -411,10 +460,10 @@ DRAW_PLATE
 
 DRAW_BENCH
 
-        lda #32
+        lda #CH_FILLED
         sta CHAR_INDEX
         ora #BG_COL_0
-        lda #COL_MGREY
+        lda #COL_LGREY
         sta CHAR_COL
 
         jsr DRAW_9
@@ -430,17 +479,20 @@ DRAW_STOVE
         tya
         pha
 
-        lda #BG_COL_3
+        lda #BG_COL_1
         sta CHAR_BG_COL
-        lda #COL_RED
+        lda #COL_WHITE
         sta CHAR_COL
         
         jsr DRAW_BOX
 
-        lda #45
-        ora #BG_COL_3
+        lda #CH_STOVE
+        ora #BG_COL_1
         ldy #$29
         sta (M_MAP_POS_LO),y
+
+        lda #COL_RED
+        sta (M_COL_POS_LO),y
 
         lda #OBJ_PAN
         sta P_FRAME
@@ -454,58 +506,23 @@ DRAW_CHOP
         tya
         pha
 
-        ldy #$0
-        lda #53
-        ora #BG_COL_3
-        sta (M_MAP_POS_LO),y
-        lda #COL_YELLOW
-        sta (M_COL_POS_LO),y
-        iny
-        lda #57
-        ora #BG_COL_3        
-        sta (M_MAP_POS_LO),y
-        lda #COL_YELLOW
-        sta (M_COL_POS_LO),y
-        iny
-        lda #54
-        ora #BG_COL_3
-        sta (M_MAP_POS_LO),y
-        lda #COL_YELLOW
-        sta (M_COL_POS_LO),y
-        ldy #$28
-        lda #56
-        ora #BG_COL_3
-        sta (M_MAP_POS_LO),y
-        lda #COL_YELLOW
-        sta (M_COL_POS_LO),y
-        iny
-        lda #59
-        ora #BG_COL_3
-        sta (M_MAP_POS_LO),y
-        lda #COL_YELLOW
-        sta (M_COL_POS_LO),y
-        iny
-        lda #55
-        ora #BG_COL_3
-        sta (M_MAP_POS_LO),y
-        lda #COL_YELLOW
-        sta (M_COL_POS_LO),y
         
-        ldy #$50
-        lda #42
-        sta (M_MAP_POS_LO),y
+        lda #BG_COL_1
+        sta CHAR_BG_COL
+        lda #COL_YELLOW
+        sta CHAR_COL
+        
+        jsr DRAW_BOX
+
+        ldy #$29
+
         lda #COL_BLACK
         sta (M_COL_POS_LO),y
-        iny
-        lda #43
+                
+        lda #CH_KNIFE
+        ora #BG_COL_1
+
         sta (M_MAP_POS_LO),y
-        lda #COL_BLACK
-        sta (M_COL_POS_LO),y
-        iny
-        lda #44
-        sta (M_MAP_POS_LO),y
-        lda #COL_BLACK
-        sta (M_COL_POS_LO),y       
 
         lda #OBJ_NONE
         sta P_FRAME
@@ -519,16 +536,20 @@ DRAW_BIN
         tya
         pha
 
-        lda #BG_COL_3
+        lda #BG_COL_0
         sta CHAR_BG_COL
-        lda #COL_BLACK
+        lda #COL_PURPLE
         sta CHAR_COL
         
         jsr DRAW_BOX_2
 
-        lda #61
-        ora #BG_COL_2
         ldy #$29
+
+        lda #COL_PURPLE        
+        sta (M_COL_POS_LO),y
+                
+        lda #CH_BIN
+        ora #BG_COL_0
         sta (M_MAP_POS_LO),y
 
         pla
@@ -539,14 +560,15 @@ DRAW_SERVE
         tya
         pha
 
-        lda #BG_COL_1
+        lda #BG_COL_0
         sta CHAR_BG_COL
         lda #COL_BLUE
         sta CHAR_COL
         
         jsr DRAW_BOX_2
 
-        lda #47        
+        lda #CH_SERVE       
+        ora #BG_COL_0
         ldy #$29
         sta (M_MAP_POS_LO),y
 
@@ -554,24 +576,156 @@ DRAW_SERVE
         tay
         rts
 
-
-DRAW_WALL
-
-        lda M_WALL_CHAR
-        ora M_WALL_BG
-        
+DRAW_VOID        
+        lda #CH_FILLED
         sta CHAR_INDEX
 
-        lda M_WALL_FG_COL
+        lda #COL_BLACK
         sta CHAR_COL
 
-        jsr DRAW_9
+        jmp DRAW_9
+
+DRAW_THEME_TILE
+        tax
+        tya
+        pha
+
+        txa
+
+        clc
+        adc L_THEME_LO
+        sta L_CHAR_SRC_LO
+        lda L_THEME_HI
+        adc #$0 
+        sta L_CHAR_SRC_HI
+
+        lda L_CHAR_SRC_LO
+        clc
+        adc #$9
+        sta L_FG_SRC_LO
+        lda L_CHAR_SRC_HI
+        adc #$0
+        sta L_FG_SRC_HI
+
+        lda L_CHAR_SRC_LO
+        clc
+        adc #$12
+        sta L_BG_SRC_LO
+        lda L_CHAR_SRC_HI
+        adc #$0
+        sta L_BG_SRC_HI
+
+        jsr DRAW_THEME_TILE_CHARS
+        jsr DRAW_THEME_TILE_COLOURS
+
+        pla
+        tay
+        rts
+
+DRAW_THEME_TILE_CHARS
+
+        ldy #$0
+        lda (L_CHAR_SRC_LO),y
+        ora (L_BG_SRC_LO),y
+        sta (M_MAP_POS_LO),y
+
+        ldy #$1
+        lda (L_CHAR_SRC_LO),y
+        ora (L_BG_SRC_LO),y
+        sta (M_MAP_POS_LO),y
+
+        ldy #$2
+        lda (L_CHAR_SRC_LO),y
+        ora (L_BG_SRC_LO),y
+        sta (M_MAP_POS_LO),y
+
+        ldy #$3
+        lda (L_CHAR_SRC_LO),y
+        ora (L_BG_SRC_LO),y
+        ldy #SCREEN_WIDTH
+        sta (M_MAP_POS_LO),y
+
+        ldy #$4
+        lda (L_CHAR_SRC_LO),y
+        ora (L_BG_SRC_LO),y
+        ldy #SCREEN_WIDTH + 1
+        sta (M_MAP_POS_LO),y
+
+        ldy #$5
+        lda (L_CHAR_SRC_LO),y
+        ora (L_BG_SRC_LO),y
+        ldy #SCREEN_WIDTH + 2
+        sta (M_MAP_POS_LO),y
+
+        ldy #$6
+        lda (L_CHAR_SRC_LO),y
+        ora (L_BG_SRC_LO),y
+        ldy #SCREEN_WIDTH_X2
+        sta (M_MAP_POS_LO),y
+
+        ldy #$7
+        lda (L_CHAR_SRC_LO),y
+        ora (L_BG_SRC_LO),y
+        ldy #SCREEN_WIDTH_X2 + 1
+        sta (M_MAP_POS_LO),y
+
+        ldy #$8
+        lda (L_CHAR_SRC_LO),y
+        ora (L_BG_SRC_LO),y
+        ldy #SCREEN_WIDTH_X2 + 2
+        sta (M_MAP_POS_LO),y
+
+        rts
+
+DRAW_THEME_TILE_COLOURS
+
+        ldy #$0
+        lda (L_FG_SRC_LO),y
+        sta (M_COL_POS_LO),y
+
+        ldy #$1
+        lda (L_FG_SRC_LO),y
+        sta (M_COL_POS_LO),y
+
+        ldy #$2
+        lda (L_FG_SRC_LO),y
+        sta (M_COL_POS_LO),y
+
+        ldy #$3
+        lda (L_FG_SRC_LO),y
+        ldy #SCREEN_WIDTH
+        sta (M_COL_POS_LO),y
+
+        ldy #$4
+        lda (L_FG_SRC_LO),y
+        ldy #SCREEN_WIDTH + 1
+        sta (M_COL_POS_LO),y
+
+        ldy #$5
+        lda (L_FG_SRC_LO),y
+        ldy #SCREEN_WIDTH + 2
+        sta (M_COL_POS_LO),y
+
+        ldy #$6
+        lda (L_FG_SRC_LO),y
+        ldy #SCREEN_WIDTH_X2
+        sta (M_COL_POS_LO),y
+
+        ldy #$7
+        lda (L_FG_SRC_LO),y
+        ldy #SCREEN_WIDTH_X2 + 1
+        sta (M_COL_POS_LO),y
+
+        ldy #$8
+        lda (L_FG_SRC_LO),y
+        ldy #SCREEN_WIDTH_X2 + 2
+        sta (M_COL_POS_LO),y
 
         rts
 
 DRAW_SLIDER_N
-        lda #$0D
-        ora #BG_COL_3
+        lda #CH_SLIDER_N
+        ora #BG_COL_1
         sta CHAR_INDEX
         
         lda #COL_MGREY
@@ -582,8 +736,8 @@ DRAW_SLIDER_N
 
 DRAW_SLIDER_S
 
-        lda #$0E
-        ora #BG_COL_3
+        lda #CH_SLIDER_S
+        ora #BG_COL_1
         sta CHAR_INDEX
         
         lda #COL_MGREY
@@ -593,8 +747,8 @@ DRAW_SLIDER_S
 
 DRAW_SLIDER_E
 
-        lda #$0F
-        ora #BG_COL_3
+        lda #CH_SLIDER_E
+        ora #BG_COL_1
         sta CHAR_INDEX
         
         lda #COL_MGREY
@@ -604,8 +758,8 @@ DRAW_SLIDER_E
 
 DRAW_SLIDER_W
 
-        lda #$10
-        ora #BG_COL_3
+        lda #CH_SLIDER_E
+        ora #BG_COL_1
         sta CHAR_INDEX
         
         lda #COL_MGREY
@@ -619,11 +773,11 @@ DRAW_BLOCKER
         lda (L_MAP_LO),y        
         and #$3
         clc
-        adc #$6
-        ora #BG_COL_1
+        adc #CH_BLOCKER_1
+        ora #BG_COL_3
         sta CHAR_INDEX
 
-        lda M_WALL_FG_COL
+        lda L_FLOOR_FG_COL
         sta CHAR_COL
 
         jmp DRAW_9       
@@ -683,19 +837,19 @@ DRAW_BOX
         pha
 
         ldy #$0
-        lda #33
+        lda #CH_BOX_TOP_LEFT
         ora CHAR_BG_COL
         sta (M_MAP_POS_LO),y
         iny
-        lda #37
+        lda #CH_BOX_TOP
         ora CHAR_BG_COL        
         sta (M_MAP_POS_LO),y
         iny
-        lda #34
+        lda #CH_BOX_TOP_RIGHT
         ora CHAR_BG_COL
         sta (M_MAP_POS_LO),y
         ldy #$28
-        lda #40
+        lda #CH_BOX_LEFT
         ora CHAR_BG_COL
         sta (M_MAP_POS_LO),y
         iny
@@ -703,19 +857,19 @@ DRAW_BOX
         ora CHAR_BG_COL
         sta (M_MAP_POS_LO),y
         iny
-        lda #38
+        lda #CH_BOX_RIGHT
         ora CHAR_BG_COL
         sta (M_MAP_POS_LO),y
         ldy #$50
-        lda #36
+        lda #CH_BOX_BOTTOM_LEFT
         ora CHAR_BG_COL
         sta (M_MAP_POS_LO),y
         iny
-        lda #39
+        lda #CH_BOX_BOTTOM
         ora CHAR_BG_COL
         sta (M_MAP_POS_LO),y
         iny
-        lda #35
+        lda #CH_BOX_BOTTOM_RIGHT
         ora CHAR_BG_COL
         sta (M_MAP_POS_LO),y
 
@@ -749,19 +903,19 @@ DRAW_BOX_2
         pha
 
         ldy #$0
-        lda #53
+        lda #CH_BOX_TOP_LEFT
         ora CHAR_BG_COL
         sta (M_MAP_POS_LO),y
         iny
-        lda #57
+        lda #CH_BOX_TOP
         ora CHAR_BG_COL        
         sta (M_MAP_POS_LO),y
         iny
-        lda #54
+        lda #CH_BOX_TOP_RIGHT
         ora CHAR_BG_COL
         sta (M_MAP_POS_LO),y
         ldy #$28
-        lda #60
+        lda #CH_BOX_LEFT
         ora CHAR_BG_COL
         sta (M_MAP_POS_LO),y
         iny
@@ -769,19 +923,19 @@ DRAW_BOX_2
         ora CHAR_BG_COL
         sta (M_MAP_POS_LO),y
         iny
-        lda #58
+        lda #CH_BOX_RIGHT
         ora CHAR_BG_COL
         sta (M_MAP_POS_LO),y
         ldy #$50
-        lda #56
+        lda #CH_BOX_BOTTOM_LEFT
         ora CHAR_BG_COL
         sta (M_MAP_POS_LO),y
         iny
-        lda #59
+        lda #CH_BOX_BOTTOM
         ora CHAR_BG_COL
         sta (M_MAP_POS_LO),y
         iny
-        lda #55
+        lda #CH_BOX_BOTTOM_RIGHT
         ora CHAR_BG_COL
         sta (M_MAP_POS_LO),y
 
@@ -852,7 +1006,7 @@ DRAW_LVLMAP
         tay
         rts
 
-DRAW_FLOOR
+DRAW_SHADOW
 
         tya
         pha
@@ -867,8 +1021,7 @@ DRAW_FLOOR
         jsr DRAW_CHAR_SE
         jsr DRAW_CHAR_S       
         jsr DRAW_CHAR_SW       
-        jsr DRAW_CHAR_W 
-        jsr DRAW_CHAR_C
+        jsr DRAW_CHAR_W
 
         pla
         tay
@@ -899,7 +1052,7 @@ GET_ADJACENT
 
         tay                     ; Put map position in y
         lda (L_MAP_LO),y          ; Load adjacent tile        
-        cmp #TILE_WALL
+        cmp #FIRST_WALL_TILE
         bcc @not_floor          ; Is it floor?
 
         lda #1
@@ -920,36 +1073,33 @@ GET_ADJACENT
            
         rts
 
-
-DRAW_CHAR_C
-        lda #$20
-        ora #BG_COL_1
-        ldy #41
-        sta (M_MAP_POS_LO),y
-        lda M_SHADOW_COL
-        sta (M_COL_POS_LO),y
-        rts
 DRAW_CHAR_NW
         lda M_ADJ_TILE_BM
         and #7
         tay
         lda CM_NW,y
-        ora #BG_COL_1
+        cmp #$0
+        beq @done
+        ora #BG_COL_3
         ldy #0
         sta (M_MAP_POS_LO),y
-        lda M_SHADOW_COL
+        lda L_FLOOR_FG_COL
         sta (M_COL_POS_LO),y
+@done
         rts
 DRAW_CHAR_N
         lda M_ADJ_TILE_BM
         and #1
         tay
         lda CM_N,y
-        ora #BG_COL_1
+        cmp #$0
+        beq @done
+        ora #BG_COL_3
         ldy #1
         sta (M_MAP_POS_LO),y
-        lda M_SHADOW_COL
+        lda L_FLOOR_FG_COL
         sta (M_COL_POS_LO),y
+@done
         rts
 DRAW_CHAR_NE
         lda M_ADJ_TILE_BM
@@ -961,22 +1111,28 @@ DRAW_CHAR_NE
         and #7
         tay
         lda CM_NE,y
-        ora #BG_COL_1
+        cmp #$0
+        beq @done
+        ora #BG_COL_3
         ldy #2
         sta (M_MAP_POS_LO),y
-        lda M_SHADOW_COL
+        lda L_FLOOR_FG_COL
         sta (M_COL_POS_LO),y
+@done
         rts
 DRAW_CHAR_E
         lda M_ADJ_TILE_BM
         and #1
         tay
         lda CM_E,y
-        ora #BG_COL_1
+        cmp #$0
+        beq @done
+        ora #BG_COL_3
         ldy #42
         sta (M_MAP_POS_LO),y
-        lda M_SHADOW_COL
+        lda L_FLOOR_FG_COL
         sta (M_COL_POS_LO),y
+@done
         rts
 DRAW_CHAR_SE
         lda M_ADJ_TILE_BM
@@ -988,22 +1144,28 @@ DRAW_CHAR_SE
         and #7
         tay
         lda CM_SE,y
-        ora #BG_COL_1
+        cmp #$0
+        beq @done
+        ora #BG_COL_3
         ldy #82
         sta (M_MAP_POS_LO),y
-        lda M_SHADOW_COL
+        lda L_FLOOR_FG_COL
         sta (M_COL_POS_LO),y
+@done
         rts
 DRAW_CHAR_S
         lda M_ADJ_TILE_BM
         and #1
         tay
         lda CM_S,y
-        ora #BG_COL_1
+        cmp #$0
+        beq @done
+        ora #BG_COL_3
         ldy #81
         sta (M_MAP_POS_LO),y
-        lda M_SHADOW_COL
+        lda L_FLOOR_FG_COL
         sta (M_COL_POS_LO),y
+@done
         rts
 DRAW_CHAR_SW
         lda M_ADJ_TILE_BM
@@ -1015,22 +1177,28 @@ DRAW_CHAR_SW
         and #7
         tay
         lda CM_SW,y
-        ora #BG_COL_1
+        cmp #$0
+        beq @done
+        ora #BG_COL_3
         ldy #80
         sta (M_MAP_POS_LO),y
-        lda M_SHADOW_COL
+        lda L_FLOOR_FG_COL
         sta (M_COL_POS_LO),y
+@done
         rts
 DRAW_CHAR_W
         lda M_ADJ_TILE_BM
         and #1
         tay
         lda CM_W,y
-        ora #BG_COL_1
+        cmp #$0
+        beq @done
+        ora #BG_COL_3
         ldy #40
         sta (M_MAP_POS_LO),y
-        lda M_SHADOW_COL
+        lda L_FLOOR_FG_COL
         sta (M_COL_POS_LO),y
+@done
         rts
 
 TEXT_SCREEN
@@ -1344,13 +1512,15 @@ FADE_IN
 
         jsr FADE_WAIT
 
-        lda #COL_LGREY
+        lda #COL_BLACK
         sta BGCOL0
-        lda M_FLOOR_COL
-        sta BGCOL1
-        lda #COL_WHITE
-        sta BGCOL2
         lda #COL_DGREY
+        sta BGCOL1
+        ldy #THEME_BG_COL_2
+        lda (L_THEME_LO),y
+        sta BGCOL2
+        ldy #THEME_BG_COL_3
+        lda (L_THEME_LO),y
         sta BGCOL3
         lda #COL_BLACK
         sta EXTCOL
@@ -1497,6 +1667,8 @@ FADE_FG_IN
         
         cmp #$FF
         beq @copy_colours
+
+        sta F_FG_COL
         
         jsr DO_FG_FADE
 
@@ -1611,7 +1783,8 @@ FADE_FG_OUT
 
         ldy FG_FADE_INDEX
         lda FG_FADE_COLS,y
-        
+        sta F_FG_COL
+
         jsr DO_FG_FADE
 
         lda #FG_FADE_FREQ
@@ -1774,10 +1947,11 @@ WRITE_DIGIT_A_Y
 
 WRITE_TEXT_CENTER
 
-        lda #SCREEN_WIDTH
         ldy #$0
+
+        lda #SCREEN_WIDTH - 1
         sec
-        sbc (TEXT_SRC_LO),y
+        sbc (TEXT_SRC_LO),y                
         lsr
         
         clc

@@ -8,21 +8,29 @@ MAP_ADJACENT  ; Offsets of adjacent map positions
 
         ; Adjacent map character lookups
 CM_NW
-        byte 32, 30, 25, 17, 19, 21, 19, 21
+        byte CH_BLANK,CH_SHAD_N_NW,CH_SHAD_NW,CH_SHAD_N,CH_SHAD_W,CH_SHAD_N_NW_W,CH_SHAD_W,CH_SHAD_N_NW_W
+
 CM_N
-        byte 32, 17
+        byte CH_BLANK,CH_SHAD_N
+
 CM_NE
-        byte 32, 18, 26, 18, 31, 22, 17, 22
+        byte CH_BLANK,CH_SHAD_E,CH_SHAD_NE,CH_SHAD_E,CH_SHAD_N_NE,CH_SHAD_N_NE_E,CH_SHAD_N,CH_SHAD_N_NE_E
+
 CM_E
-        byte 32, 18
+        byte CH_BLANK,CH_SHAD_E
+
 CM_SE
-        byte 32, 20, 27, 20, 18, 24, 18, 24
+        byte CH_BLANK,CH_SHAD_S,CH_SHAD_SE,CH_SHAD_S,CH_SHAD_E,CH_SHAD_S_SE_E,CH_SHAD_E,CH_SHAD_S_SE_E
+
 CM_S
-        byte 32, 20
+        byte CH_BLANK,CH_SHAD_S
+
 CM_SW
-        byte 32, 19, 28, 19, 20, 23, 20, 23
+        byte CH_BLANK,CH_SHAD_W,CH_SHAD_SW,CH_SHAD_W,CH_SHAD_S,CH_SHAD_S_SW_W,CH_SHAD_S,CH_SHAD_S_SW_W
+
 CM_W 
-        byte 32, 19
+        byte CH_BLANK,CH_SHAD_W
+
 
 PLAYER_LOOK_OFFSET
         byte 0, 1, 1                            ;    N1 N2 N3
@@ -107,9 +115,6 @@ LVL_OBJ_FRAME_LINES
         byte <FRAME_LINE_5, >FRAME_LINE_5
         byte <FRAME_LINE_6, >FRAME_LINE_6
         byte <FRAME_LINE_7, >FRAME_LINE_7
-
-LVL_TILE_MAP
-        dcb 1000,TILE_FLOOR
           
 ; State of blocker tiles
 LVL_BLOCK_STATE
@@ -156,7 +161,7 @@ FRAME_LINE_0
         BYTE 60                         ; 1 - Y position to draw at
         BYTE 0, 0, 0, 0                 ; 2 - 5 - X position of fixed objects
         BYTE 0                          ; 6 - MSIGX
-        BYTE $0                         ; 7 - SPENA
+        BYTE 0                          ; 7 - SPENA
         BYTE 0, 0, 0, 0                 ; 8 - 11 - SP4COL - SP7COL 
         BYTE 0, 0, 0, 0                 ; 12 - 15 - SPRPTR4 - SPRPTR7
 
@@ -182,7 +187,7 @@ FRAME_LINE_7
         BYTE 225, 228, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 TITLE_LINE_X
-        BYTE 85,133,181,229,87,135,183,231
+        BYTE 89,137,185,233,91,139,187,235
 TITLE_COLS_1
         BYTE COL_YELLOW, COL_YELLOW, COL_YELLOW, COL_YELLOW, COL_RED, COL_RED, COL_RED, COL_RED
 TITLE_COLS_2
@@ -190,3 +195,11 @@ TITLE_COLS_2
 
 FG_FADE_COLS
         BYTE COL_BLACK, COL_DGREY, COL_MGREY, COL_LGREY, $FF
+
+THEME_FLOOR_TILE_OFFSETS
+        BYTE THEME_F0_CHARS, THEME_F1_CHARS, THEME_F2_CHARS, THEME_F3_CHARS
+THEME_FLOOR_FG_OFFSETS
+        BYTE THEME_F0_FG, THEME_F1_FG, THEME_F2_FG, THEME_F3_FG
+THEME_FLOOR_BG_OFFSETS
+        BYTE THEME_F0_BG, THEME_F1_BG, THEME_F2_BG, THEME_F3_BG
+

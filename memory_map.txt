@@ -8,7 +8,7 @@
 
 ## $0900 - Game Program
 
-# $2800 - $3FFF - Data
+# $3000 - $3FFF - Data
 
 ## Level definitions
 
@@ -32,6 +32,8 @@
 
 
 # $C000 - $C3E7 - Colour RAM copy
+
+# $C400 - Expanded tile map
 
 # $D000 - $D02E - VIC Registers
 

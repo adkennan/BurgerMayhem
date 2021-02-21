@@ -4,6 +4,7 @@
 G_LEVEL_NUM     = $10 ; Current level
 G_PLAYER_COUNT    = $11
 G_GAME_STATE    = $12
+G_QUIT                = $13
 
 ; Level data
 
@@ -16,7 +17,8 @@ L_TIME_SECONDS_HI = $24
 L_TIME_TICKS      = $2E
 
 L_BURGERS_REQ     = $29 ; Number of burgers required
-L_BURGER_COUNT_LO = $25 ; Burgers completed
+L_BURGER_COUNT    = $2A ; Burgers completed
+L_BURGER_COUNT_LO = $25 ; For display
 L_BURGER_COUNT_HI = $26
 
 L_MAP_LO          = $27 ; Map pointer
@@ -84,6 +86,8 @@ FRAME_LINE_HI   = $57
 M_LVLMAP_POS_LO   = $58 ; Position in LVL_TILE_MAP
 M_LVLMAP_POS_HI   = $59
 
+M_TILE            = $5E ; Current tile
+
 F_FG_COL                = $50 ; Fade in colours
 F_BG_COL                = $51
 
@@ -139,11 +143,17 @@ P_SP2Y          = $8F
 P_SP3X          = $90
 P_SP3Y          = $91
 
-M_FLOOR_COL     = $90
-M_SHADOW_COL    = $91
-M_WALL_BG       = $92
-M_WALL_FG_COL   = $93
-M_WALL_CHAR     = $94
+L_THEME_LO      = $92
+L_THEME_HI      = $93
+L_CHAR_SRC_LO   = $94
+L_CHAR_SRC_HI   = $95
+L_CHAR_DST_LO   = $96
+L_CHAR_DST_HI   = $97
+L_FG_SRC_LO     = $98
+L_FG_SRC_HI     = $99
+L_BG_SRC_LO     = $9A
+L_BG_SRC_HI     = $9B
+L_FLOOR_FG_COL  = $9C
 
 P_STICK         = $BA
 P_BUTTON        = $BB
