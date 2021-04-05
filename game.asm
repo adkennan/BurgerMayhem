@@ -1,12 +1,74 @@
 
 START_GAME
-        
-        jsr FADE_FG_OUT
-        jsr CLEAR_SCREEN
-        
+
         lda #$01
         sta G_LEVEL_NUM
+        
+        jsr TITLE_INIT
+        
+@loop_title_in
+        jsr TITLE_IN
+        cmp #$1
+        bne @loop_title_in
+        
+        jsr @show_lines
 
+        lda #<920
+        sta TEXT_POS_LO
+        lda #>920
+        sta TEXT_POS_HI
+        jsr FADE_LINE_INIT
+
+@loop
+        jsr TITLE_HOLD
+
+        jsr FADE_LINE_IN
+        cmp #$1
+        bne @no_reset
+
+        lda #<920
+        sta TEXT_POS_LO
+        lda #>920
+        sta TEXT_POS_HI
+        jsr FADE_LINE_INIT
+
+@no_reset
+
+        jsr TITLE_HOLD
+
+        ldx #$0
+        jsr CHECK_JOYSTICK
+        lda P_BUTTON
+        cmp #$1
+        beq @start
+        jsr @check_stick
+
+        ldx #$1
+        jsr CHECK_JOYSTICK
+        lda P_BUTTON
+        cmp #$1
+        beq @start
+        jsr @check_stick
+
+        jmp @loop
+
+@start
+        jsr FADE_FG_OUT_INIT
+
+@loop_fade_out
+        jsr TITLE_HOLD
+
+        jsr FADE_FG_OUT
+        cmp #$0
+        bne @loop_fade_out
+
+@title_slide_out
+        jsr TITLE_OUT
+        cmp #$1
+        bne @title_slide_out
+
+        jsr CLEAR_SCREEN
+ 
         lda #GS_PRE_LEVEL
         sta G_GAME_STATE
 
@@ -15,27 +77,159 @@ START_GAME
 
         rts
 
-INIT_LEVEL
+@check_stick
+        lda P_STICK
+        and #DIR_E
+        cmp #DIR_E
+
+        bne @check_left
+
+        lda G_LEVEL_NUM
+        cmp #LEVEL_COUNT
+        beq @no_change
+
+        clc
+        adc #1
+
+        jmp @new_level
+
+@check_left
+        lda P_STICK
+        and #DIR_W
+        cmp #DIR_W
+
+        bne @no_change
+
+        lda G_LEVEL_NUM
+        cmp #1
+        beq @no_change
+
+        sec 
+        sbc #1
+
+@new_level
+
+        sta G_LEVEL_NUM
+
+        lda #$1
+
+        jsr @hide_lines
+        jsr @show_lines
+
+        rts
+
+@no_change
+        lda #$0
+
+        rts
+
+@hide_lines
+        lda #<600
+        sta TEXT_POS_LO
+        lda #>600
+        sta TEXT_POS_HI
+
+        jsr CLEAR_LINE
+
+        lda #<720
+        sta TEXT_POS_LO
+        lda #>720
+        sta TEXT_POS_HI
+
+        jsr CLEAR_LINE
+
+        lda #<920
+        sta TEXT_POS_LO
+        lda #>920
+        sta TEXT_POS_HI
+
+        jsr CLEAR_LINE
+
+        rts
+
+@show_lines
+        print STR_WHERE_TO_START, 446, COL_LBLUE, COL_BLUE
+
+        print STR_LEVEL, 615, COL_ORANGE, COL_RED            
+
+        lda G_LEVEL_NUM
+        print_num 623, COL_ORANGE, COL_RED
+
+        lda G_LEVEL_NUM
+        asl
+        tay
         
-        lda #<LEVEL_01
+        lda LEVEL_SEQUENCE,y
         sta L_CURR_LEVEL_LO
-        lda #>LEVEL_01
+
+        iny
+        lda LEVEL_SEQUENCE,y
         sta L_CURR_LEVEL_HI
+                
+        ldy #LVL_DESC_LO
+        print_ptr_y_ctr L_CURR_LEVEL_LO, 720, COL_LGREEN, COL_GREEN   
 
-        ldy G_LEVEL_NUM
-@loop        
-        cpy #$0
-        beq @got_level
+        print STR_PRESS_FIRE, 934, COL_LBLUE, COL_BLUE       
 
-        lda L_CURR_LEVEL_LO
-        adc #LVL_DATA_SIZE
-        bcc @next
-        inc L_CURR_LEVEL_HI
-@next
-        dey
-        jmp @loop
+        lda #<440
+        sta TEXT_POS_LO
+        lda #>440
+        sta TEXT_POS_HI
+        jsr FADE_LINE_INIT
+
+@show_line_0
+        jsr TITLE_HOLD
+
+        jsr FADE_LINE_IN
+        cmp #$1
+        bne @show_line_0
+
+        lda #<600
+        sta TEXT_POS_LO
+        lda #>600
+        sta TEXT_POS_HI
+        jsr FADE_LINE_INIT
+
+@show_line_1
+        jsr TITLE_HOLD
+
+        jsr FADE_LINE_IN
+        cmp #$1
+        bne @show_line_1
+
+        lda #<720
+        sta TEXT_POS_LO
+        lda #>720
+        sta TEXT_POS_HI
+        jsr FADE_LINE_INIT
+
+@show_line_2
+        jsr TITLE_HOLD
+
+        jsr FADE_LINE_IN
+        cmp #$1
+        bne @show_line_2
+
+        lda #<920
+        sta TEXT_POS_LO
+        lda #>920
+        sta TEXT_POS_HI
+        jsr FADE_LINE_INIT
+
+        rts
+
+INIT_LEVEL
+
+        lda G_LEVEL_NUM
+        asl
+        tay
         
-@got_level
+        lda LEVEL_SEQUENCE,y
+        sta L_CURR_LEVEL_LO
+
+        iny
+        lda LEVEL_SEQUENCE,y
+        sta L_CURR_LEVEL_HI
 
         ldy #LVL_MP_LO           ; Copy the pointer to the map
         lda (L_CURR_LEVEL_LO),y
@@ -79,6 +273,12 @@ INIT_LEVEL
         sta L_BURGER_COUNT_LO
         sta L_BURGER_COUNT_HI
         sta L_BURGER_COUNT
+
+        lda #SB_0               ; Reset counter display
+        ldy #SL_SPRPTR6
+        sta STATUS_LINE,y
+        ldy #SL_SPRPTR7
+        sta STATUS_LINE,y
 
         ldy #LVL_THEME_LO       ; Level Theme
         lda (L_CURR_LEVEL_LO),y
@@ -127,6 +327,16 @@ INIT_LEVEL
         sta P_FRAME
                 
         jsr INIT_PLAYER
+
+                                ; Clear the object table
+        ldx #32         
+        lda #0        
+@clear_obj_type_loop
+
+        sta LVL_OBJ_TYPE,x
+        
+        dex
+        bne @clear_obj_type_loop
 
         rts
 
@@ -298,13 +508,37 @@ TITLE
 
         jsr TITLE_INIT
 
+        jsr BIG_BURGER_INIT
+
+        print STR_COPYRIGHT, 926, COL_LBLUE, COL_BLUE
+
 @loop_in
         jsr TITLE_IN
         cmp #$0
         beq @loop_in
 
+        lda #<920
+        sta TEXT_POS_LO
+        lda #>920
+        sta TEXT_POS_HI
+        jsr FADE_LINE_INIT
+
 @loop
         jsr TITLE_HOLD
+
+        jsr BIG_BURGER_IN
+
+        jsr FADE_LINE_IN
+        cmp #$1
+        bne @no_reset
+
+        lda #<920
+        sta TEXT_POS_LO
+        lda #>920
+        sta TEXT_POS_HI
+        jsr FADE_LINE_INIT
+
+@no_reset
 
         ldx #$0
         jsr CHECK_JOYSTICK
@@ -331,6 +565,166 @@ TITLE
         lda #GS_START_GAME
         sta G_GAME_STATE
 
+        rts
+
+BIG_BURGER_INIT
+
+        lda #$0
+        sta BB_LINE_1
+        clc
+        adc #10
+        sta BB_LINE_2
+        clc 
+        adc #10
+        sta BB_LINE_3
+        clc
+        adc #10
+        sta BB_LINE_4
+        clc
+        adc #10
+        sta BB_LINE_5
+
+        ldx #1
+
+        lda #BB_TOP_START
+        sta BB_LINE_1 + 1
+
+
+        lda #BB_LET_START
+        sta BB_LINE_2 + 1
+
+
+        lda #BB_TOM_START
+        sta BB_LINE_3 + 1
+
+
+        lda #BB_MEAT_START
+        sta BB_LINE_4 + 1
+
+
+        lda #BB_BOT_START
+        sta BB_LINE_5 + 1
+
+        rts
+
+BIG_BURGER_IN
+        
+        lda #130
+@wait_1
+        cmp RASTER
+        bne @wait_1
+
+        time_on RED
+
+        ldy #0
+        ldx #4
+        lda #<BB_LINE_1
+        sta BB_LINE_LO
+        lda #>BB_LINE_1
+        sta BB_LINE_HI
+@loop
+        dex
+
+        ;lda (BB_LINE_LO),y
+        ;cmp #0
+        ;beq @moving
+
+        ;sec
+        ;sbc #1
+        ;sta (BB_LINE_LO),y
+        ;jmp @stopped
+
+@moving
+        ldy #1
+        lda (BB_LINE_LO),y
+        sta BB_Y
+
+        ldy #3
+        lda (BB_LINE_LO),y
+        tay
+
+        lda BB_Y
+        sta SP0X,y
+        iny
+        iny
+        sta SP0X,y
+                
+        ldy #2
+        cmp (BB_LINE_LO),y
+        beq @stopped
+
+        sec
+        sbc #2
+        ldy #1
+        sta (BB_LINE_LO),y
+
+@stopped
+
+        lda BB_LINE_LO
+        clc
+        adc #4
+        sta BB_LINE_LO
+        bcc @no_inc
+        inc BB_LINE_HI
+@no_inc
+
+        cpx #0
+        bne @loop
+        
+        time_on GREEN
+
+        lda #COL_YELLOW
+        sta SPMC0
+        lda #COL_RED
+        sta SPMC1
+
+        lda #COL_ORANGE
+        sta SP0COL
+        sta SP1COL
+        lda #COL_GREEN
+        sta SP2COL
+        sta SP3COL
+        lda #COL_LRED
+        sta SP4COL
+        sta SP5COL
+        lda #COL_BROWN
+        sta SP6COL
+        sta SP7COL        
+
+        lda #TSB_TOP_BUN_1
+        sta SPRPTR0
+        lda #TSB_TOP_BUN_2
+        sta SPRPTR1
+        lda #TSB_LETTUCE_1
+        sta SPRPTR2
+        lda #TSB_LETTUCE_2
+        sta SPRPTR3
+        lda #TSB_TOMATO_1
+        sta SPRPTR4
+        lda #TSB_TOMATO_2
+        sta SPRPTR5
+        lda #TSB_MEAT_1
+        sta SPRPTR6
+        lda #TSB_MEAT_2
+        sta SPRPTR7
+
+        lda #BB_LEFT_X
+        sta SP0X
+        sta SP2X
+        sta SP4X
+        sta SP6X
+        lda #BB_RIGHT_X
+        sta SP1X
+        sta SP3X
+        sta SP5X
+        sta SP7X
+
+        lda #$ff
+        sta SPENA
+        sta SPMC
+
+        time_off
+        
         rts
 
 TITLE_INIT
@@ -698,7 +1092,7 @@ PRE_LEVEL
         sta TEXT_POS_LO
         lda #>440
         sta TEXT_POS_HI
-        jsr FADE_LINE_IN_INIT
+        jsr FADE_LINE_INIT
 
 @text_in_1
         jsr TITLE_HOLD
@@ -711,7 +1105,7 @@ PRE_LEVEL
         sta TEXT_POS_LO
         lda #>560
         sta TEXT_POS_HI
-        jsr FADE_LINE_IN_INIT
+        jsr FADE_LINE_INIT
 
 @text_in_2
         jsr TITLE_HOLD
@@ -724,7 +1118,7 @@ PRE_LEVEL
         sta TEXT_POS_LO
         lda #>680
         sta TEXT_POS_HI
-        jsr FADE_LINE_IN_INIT
+        jsr FADE_LINE_INIT
 
 @text_in_3
         jsr TITLE_HOLD
@@ -737,7 +1131,7 @@ PRE_LEVEL
         sta TEXT_POS_LO
         lda #>760
         sta TEXT_POS_HI
-        jsr FADE_LINE_IN_INIT
+        jsr FADE_LINE_INIT
 
 @text_in_4
         jsr TITLE_HOLD
@@ -750,7 +1144,7 @@ PRE_LEVEL
         sta TEXT_POS_LO
         lda #>920
         sta TEXT_POS_HI
-        jsr FADE_LINE_IN_INIT
+        jsr FADE_LINE_INIT
 
 @loop
         jsr TITLE_HOLD
@@ -763,7 +1157,7 @@ PRE_LEVEL
         sta TEXT_POS_LO
         lda #>920
         sta TEXT_POS_HI
-        jsr FADE_LINE_IN_INIT
+        jsr FADE_LINE_INIT
 
 @no_reset
 
@@ -821,6 +1215,9 @@ POST_LEVEL
         jsr TITLE_INIT
         
 @loop_title_in
+        lda #CHOICE_CONTINUE
+        sta G_CHOICE
+
         jsr TITLE_IN
         cmp #$1
         bne @loop_title_in
@@ -846,21 +1243,19 @@ POST_LEVEL
         cmp L_BURGER_COUNT
         bcc @success
 
-        print STR_TOO_BAD, 926, COL_LBLUE, COL_BLUE
-        print STR_ARROW, 937, COL_BLACK, COL_BLACK
-        print STR_ARROW, 943, COL_BLACK, COL_BLACK
+        print STR_BETTER_LUCK, 809, COL_LBLUE, COL_BLUE
 
         jmp @fade_in
 
 @success
-        print STR_PRESS_FIRE, 934, COL_LBLUE, COL_BLUE 
+        print STR_WELL_DONE, 814, COL_LBLUE, COL_BLUE 
 
 @fade_in
         lda #<440
         sta TEXT_POS_LO
         lda #>440
         sta TEXT_POS_HI
-        jsr FADE_LINE_IN_INIT
+        jsr FADE_LINE_INIT
 
 @text_in_1
         jsr TITLE_HOLD
@@ -873,7 +1268,7 @@ POST_LEVEL
         sta TEXT_POS_LO
         lda #>520
         sta TEXT_POS_HI
-        jsr FADE_LINE_IN_INIT
+        jsr FADE_LINE_INIT
 
 @text_in_2
         jsr TITLE_HOLD
@@ -886,7 +1281,7 @@ POST_LEVEL
         sta TEXT_POS_LO
         lda #>640
         sta TEXT_POS_HI
-        jsr FADE_LINE_IN_INIT
+        jsr FADE_LINE_INIT
 
 @text_in_3
         jsr TITLE_HOLD
@@ -899,7 +1294,7 @@ POST_LEVEL
         sta TEXT_POS_LO
         lda #>720
         sta TEXT_POS_HI
-        jsr FADE_LINE_IN_INIT
+        jsr FADE_LINE_INIT
 
 @text_in_4
         jsr TITLE_HOLD
@@ -908,11 +1303,14 @@ POST_LEVEL
         cmp #$1
         bne @text_in_4
 
-        lda #<920
+        lda #<800
         sta TEXT_POS_LO
-        lda #>920
+        lda #>800
         sta TEXT_POS_HI
-        jsr FADE_LINE_IN_INIT
+
+        jsr @draw_choice
+
+        jsr FADE_LINE_INIT
 
 @loop
         jsr TITLE_HOLD
@@ -925,7 +1323,7 @@ POST_LEVEL
         sta TEXT_POS_LO
         lda #>920
         sta TEXT_POS_HI
-        jsr FADE_LINE_IN_INIT
+        jsr FADE_LINE_INIT
 
 @no_reset
 
@@ -934,22 +1332,15 @@ POST_LEVEL
         lda P_BUTTON
         cmp #$1
         beq @start
-
-        lda P_STICK
-        cmp #$0 
-        bne @change_choice
+        jsr @change_choice
         
         ldx #$1
         jsr CHECK_JOYSTICK
         lda P_BUTTON
         cmp #$1
         beq @start
-        
-        lda P_STICK
-        beq @loop
+        jsr @change_choice
 
-@change_choice
-        
         jmp @loop
 
 @start
@@ -969,9 +1360,111 @@ POST_LEVEL
 
         jsr CLEAR_SCREEN
 
+        lda G_CHOICE
+        cmp #CHOICE_QUIT
+        bne @continue_game
+
+        lda #GS_GAME_OVER
+        sta G_GAME_STATE
+        rts
+
+@continue_game
+
         lda #GS_PRE_LEVEL
         sta G_GAME_STATE
 
+        ldy #LVL_TARGET
+        lda (L_CURR_LEVEL_LO),y
+        cmp L_BURGER_COUNT
+        bcc @next_level
+
+        rts ; Retry current level
+
+@next_level
+
+        lda G_LEVEL_NUM
+        cmp #LEVEL_COUNT
+        beq @reset_level
+
+        clc
+        adc #1
+        jmp @done
+
+@reset_level
+
+        lda #1
+
+@done
+        sta G_LEVEL_NUM
+        rts
+
+@change_choice
+        
+        lda P_STICK
+        and #DIR_W
+        cmp #DIR_W
+
+        bne @check_e
+
+        lda G_CHOICE
+        cmp #CHOICE_CONTINUE
+        beq @no_change
+        
+        lda #CHOICE_CONTINUE
+
+        jmp @change
+
+@check_e
+        lda P_STICK
+        and #DIR_E
+        cmp #DIR_E
+        bne @no_change
+
+        lda G_CHOICE
+        cmp #CHOICE_QUIT
+        beq @no_change
+
+        lda #CHOICE_QUIT
+
+@change
+        sta G_CHOICE    
+
+        jsr @draw_choice
+        
+@no_change
+        rts
+
+@draw_choice
+        lda #<920
+        sta TEXT_POS_LO
+        lda #>920
+        sta TEXT_POS_HI
+
+        jsr CLEAR_LINE
+
+        lda G_CHOICE
+        cmp #CHOICE_QUIT
+        bne @check_continue
+
+        print STR_QUIT, 938, COL_LBLUE, COL_BLUE
+        jsr FADE_LINE_INIT
+        rts
+
+@check_continue
+
+        ldy #LVL_TARGET
+        lda (L_CURR_LEVEL_LO),y
+        cmp L_BURGER_COUNT
+        bcc @continue
+
+        print STR_TRY_AGAIN, 933, COL_LBLUE, COL_BLUE
+        jsr FADE_LINE_INIT
+        rts
+
+@continue
+
+        print STR_CONTINUE, 936, COL_LBLUE, COL_BLUE
+        jsr FADE_LINE_INIT
         rts
 
 GAME_OVER

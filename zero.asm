@@ -5,6 +5,7 @@ G_LEVEL_NUM     = $10 ; Current level
 G_PLAYER_COUNT    = $11
 G_GAME_STATE    = $12
 G_QUIT                = $13
+G_CHOICE        = $14
 
 ; Level data
 
@@ -154,6 +155,8 @@ L_FG_SRC_HI     = $99
 L_BG_SRC_LO     = $9A
 L_BG_SRC_HI     = $9B
 L_FLOOR_FG_COL  = $9C
+L_SHADOW_FG_COL = $9D
+L_SHADOW_BG_COL = $9E
 
 P_STICK         = $BA
 P_BUTTON        = $BB
@@ -205,3 +208,9 @@ TEXT_COL_HI     = $EA
 TEXT_COL_LO_2   = $EB
 TEXT_COL_HI_2   = $EC
 TEXT_NUM        = $E2
+
+BB_LINE_LO      = $F1
+BB_LINE_HI      = $F2
+
+BB_Y            = $F0
+

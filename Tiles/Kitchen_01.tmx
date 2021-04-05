@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.4" tiledversion="1.4.3" orientation="orthogonal" renderorder="right-down" width="13" height="8" tilewidth="24" tileheight="24" infinite="0" nextlayerid="2" nextobjectid="1">
+ <tileset firstgid="1" source="BurgerMayhem.tsx"/>
+ <layer id="1" name="Tile Layer 1" width="13" height="8">
+  <data encoding="csv">
+168,168,168,234,234,234,234,234,234,234,168,168,168,
+168,36,3,135,331,265,201,265,331,135,3,3,168,
+168,69,3,3,69,102,3,3,3,3,3,3,168,
+232,3,36,3,3,36,69,3,69,3,69,102,199,
+168,3,3,135,298,331,201,331,298,135,3,36,168,
+168,3,3,135,34,67,100,133,166,135,3,3,168,
+168,102,3,3,3,3,3,3,3,3,102,3,168,
+168,168,168,168,168,168,168,168,168,168,168,168,168
+</data>
+ </layer>
+</map>

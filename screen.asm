@@ -95,6 +95,11 @@ DRAW_MAP
         cmp #FIRST_WALL_TILE
         bcs @next_tile
         
+        lda #BG_COL_3
+        sta L_SHADOW_BG_COL
+        lda L_FLOOR_FG_COL
+        sta L_SHADOW_FG_COL
+
         jsr DRAW_SHADOW
 
 @next_tile
@@ -582,8 +587,15 @@ DRAW_VOID
 
         lda #COL_BLACK
         sta CHAR_COL
+        
+        jsr DRAW_9
 
-        jmp DRAW_9
+        lda #BG_COL_0
+        sta L_SHADOW_BG_COL
+        lda #COL_DGREY
+        sta L_SHADOW_FG_COL
+        
+        jmp DRAW_SHADOW
 
 DRAW_THEME_TILE
         tax
@@ -1055,6 +1067,12 @@ GET_ADJACENT
         cmp #FIRST_WALL_TILE
         bcc @not_floor          ; Is it floor?
 
+        cmp #TILE_VOID          ; Void is not floor
+        beq @not_floor
+
+        cmp #TILE_EOL           ; EOL marker is not floor
+        beq @not_floor
+
         lda #1
         jmp @next
 @not_floor      
@@ -1080,10 +1098,10 @@ DRAW_CHAR_NW
         lda CM_NW,y
         cmp #$0
         beq @done
-        ora #BG_COL_3
+        ora L_SHADOW_BG_COL
         ldy #0
         sta (M_MAP_POS_LO),y
-        lda L_FLOOR_FG_COL
+        lda L_SHADOW_FG_COL
         sta (M_COL_POS_LO),y
 @done
         rts
@@ -1094,10 +1112,10 @@ DRAW_CHAR_N
         lda CM_N,y
         cmp #$0
         beq @done
-        ora #BG_COL_3
+        ora L_SHADOW_BG_COL
         ldy #1
         sta (M_MAP_POS_LO),y
-        lda L_FLOOR_FG_COL
+        lda L_SHADOW_FG_COL
         sta (M_COL_POS_LO),y
 @done
         rts
@@ -1113,10 +1131,10 @@ DRAW_CHAR_NE
         lda CM_NE,y
         cmp #$0
         beq @done
-        ora #BG_COL_3
+        ora L_SHADOW_BG_COL
         ldy #2
         sta (M_MAP_POS_LO),y
-        lda L_FLOOR_FG_COL
+        lda L_SHADOW_FG_COL
         sta (M_COL_POS_LO),y
 @done
         rts
@@ -1127,10 +1145,10 @@ DRAW_CHAR_E
         lda CM_E,y
         cmp #$0
         beq @done
-        ora #BG_COL_3
+        ora L_SHADOW_BG_COL
         ldy #42
         sta (M_MAP_POS_LO),y
-        lda L_FLOOR_FG_COL
+        lda L_SHADOW_FG_COL
         sta (M_COL_POS_LO),y
 @done
         rts
@@ -1146,10 +1164,10 @@ DRAW_CHAR_SE
         lda CM_SE,y
         cmp #$0
         beq @done
-        ora #BG_COL_3
+        ora L_SHADOW_BG_COL
         ldy #82
         sta (M_MAP_POS_LO),y
-        lda L_FLOOR_FG_COL
+        lda L_SHADOW_FG_COL
         sta (M_COL_POS_LO),y
 @done
         rts
@@ -1160,10 +1178,10 @@ DRAW_CHAR_S
         lda CM_S,y
         cmp #$0
         beq @done
-        ora #BG_COL_3
+        ora L_SHADOW_BG_COL
         ldy #81
         sta (M_MAP_POS_LO),y
-        lda L_FLOOR_FG_COL
+        lda L_SHADOW_FG_COL
         sta (M_COL_POS_LO),y
 @done
         rts
@@ -1179,10 +1197,10 @@ DRAW_CHAR_SW
         lda CM_SW,y
         cmp #$0
         beq @done
-        ora #BG_COL_3
+        ora L_SHADOW_BG_COL
         ldy #80
         sta (M_MAP_POS_LO),y
-        lda L_FLOOR_FG_COL
+        lda L_SHADOW_FG_COL
         sta (M_COL_POS_LO),y
 @done
         rts
@@ -1193,10 +1211,10 @@ DRAW_CHAR_W
         lda CM_W,y
         cmp #$0
         beq @done
-        ora #BG_COL_3
+        ora L_SHADOW_BG_COL
         ldy #40
         sta (M_MAP_POS_LO),y
-        lda L_FLOOR_FG_COL
+        lda L_SHADOW_FG_COL
         sta (M_COL_POS_LO),y
 @done
         rts
@@ -1545,8 +1563,7 @@ FADE_IN
 
         rts
 
-
-FADE_LINE_IN_INIT
+FADE_LINE_INIT
 
         lda TEXT_POS_LO
         clc
@@ -1574,6 +1591,71 @@ FADE_LINE_IN_INIT
 
         lda #$0
         sta FG_FADE_INDEX
+        rts
+
+FADE_LINE_OUT
+        jsr FG_FADE_WAIT
+
+        ldy FG_FADE_INDEX
+        cpy #SCREEN_WIDTH
+        bcs @sub_1
+
+        lda #COL_LGREY
+        sta (TEXT_COL_LO),y                
+        sta (TEXT_COL_LO_2),y
+
+@sub_1
+        dey
+        cpy #$0
+        bcc @sub_2
+        cpy #SCREEN_WIDTH
+        bcs @sub_2
+
+        lda #COL_MGREY
+        sta (TEXT_COL_LO),y
+        sta (TEXT_COL_LO_2),y
+
+@sub_2        
+        dey
+        cpy #$0
+        bcc @sub_3
+        cpy #SCREEN_WIDTH
+        bcs @sub_3
+
+        lda #COL_DGREY
+        sta (TEXT_COL_LO),y
+        sta (TEXT_COL_LO_2),y
+
+@sub_3        
+        dey
+        cpy #$0
+        bcc @sub_3
+        cpy #SCREEN_WIDTH
+        bcs @sub_3
+
+        lda #COL_BLACK
+        sta (TEXT_COL_LO),y
+        sta (TEXT_COL_LO_2),y
+        sta (TEXT_SRC_LO),y
+        tya
+        clc
+        adc #SCREEN_WIDTH
+        tay
+        lda #COL_BLACK
+        sta (TEXT_COL_LO),y
+        
+
+        lda FG_FADE_INDEX
+        clc
+        adc #$1
+        sta FG_FADE_INDEX
+
+        cmp #SCREEN_WIDTH + 3
+        beq @done
+        lda #$0
+        rts
+@done
+        lda #$1
         rts
 
 FADE_LINE_IN
@@ -1636,6 +1718,45 @@ FADE_LINE_IN
         rts
 @done
         lda #$1
+        rts
+
+CLEAR_LINE
+        
+        lda TEXT_POS_LO
+        clc
+        adc #<REAL_COLOUR_RAM
+        sta TEXT_COL_LO
+        lda TEXT_POS_HI
+        adc #>REAL_COLOUR_RAM
+        sta TEXT_COL_HI
+
+        lda TEXT_POS_LO
+        clc
+        adc #<COLOUR_RAM
+        sta TEXT_COL_LO_2
+        lda TEXT_POS_HI
+        adc #>COLOUR_RAM
+        sta TEXT_COL_HI_2
+
+        lda TEXT_POS_LO
+        clc
+        adc #<SCREEN_0
+        sta TEXT_DST_LO
+        lda TEXT_POS_HI
+        adc #>SCREEN_0
+        sta TEXT_DST_HI
+
+        ldy #SCREEN_WIDTH_X2
+@loop
+        lda #CH_BLANK
+        sta (TEXT_COL_LO),y
+        sta (TEXT_COL_LO_2),y
+        sta (TEXT_DST_LO),y
+        
+        dey
+        cpy #0
+        bne @loop
+        
         rts
 
 FADE_FG_IN_INIT

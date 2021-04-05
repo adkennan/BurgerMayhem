@@ -97,6 +97,8 @@ SPRITE_COLOURS
         byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         byte COL_GREEN  ; GO
         byte COL_RED, COL_RED, COL_RED ; 1/4, 2/4, 3/4
+        byte COL_ORANGE, COL_ORANGE, COL_ORANGE, COL_ORANGE ; Big burger colours
+        byte COL_GREEN, COL_GREEN, COL_LRED, COL_LRED, COL_BROWN, COL_BROWN
 
 ; The Type of object currently at that position
 LVL_OBJ_TYPE
@@ -139,7 +141,12 @@ BLOCKER_DST_LO
 BLOCKER_DST_HI
         byte >CHAR_BLOCKER_0, >CHAR_BLOCKER_1, >CHAR_BLOCKER_2, >CHAR_BLOCKER_3
 
-; Title Line data.
+; Title Burger
+; Sprite positions for the big burger sprites on the title screen
+TITLE_BURGER
+        BYTE 0, 0, 0, 0, 0, 0, 0, 0
+
+; Status Line data.
 ; Sprite position, colours and frames for the timer and score      
 STATUS_LINE
         BYTE 28                         ; 0 - Y position to wait for
@@ -186,6 +193,20 @@ FRAME_LINE_6
 FRAME_LINE_7
         BYTE 225, 228, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
+BB_LINE_1
+        BYTE 0 ; Countdown until shown
+        BYTE 0 ; Y Pos
+        BYTE BB_TOP_STOP ; Stop Y Pos
+        BYTE 1 ; Sprite Y reg offset
+BB_LINE_2
+        BYTE 0, 0, BB_LET_STOP, 5
+BB_LINE_3
+        BYTE 0, 0, BB_TOM_STOP, 9
+BB_LINE_4
+        BYTE 0, 0, BB_MEAT_STOP, 13
+BB_LINE_5
+        BYTE 0, 0, BB_BOT_STOP, 1
+
 TITLE_LINE_X
         BYTE 89,137,185,233,91,139,187,235
 TITLE_COLS_1
@@ -202,4 +223,27 @@ THEME_FLOOR_FG_OFFSETS
         BYTE THEME_F0_FG, THEME_F1_FG, THEME_F2_FG, THEME_F3_FG
 THEME_FLOOR_BG_OFFSETS
         BYTE THEME_F0_BG, THEME_F1_BG, THEME_F2_BG, THEME_F3_BG
+
+LEVEL_SEQUENCE
+        BYTE 0, 0
+ZONE_KITCHEN
+        BYTE <LVL_KITCHEN_01, >LVL_KITCHEN_01
+        BYTE <LVL_KITCHEN_02, >LVL_KITCHEN_02
+
+ZONE_FOREST
+        BYTE <LVL_FOREST_01, >LVL_FOREST_01
+        BYTE <LVL_FOREST_02, >LVL_FOREST_02
+        BYTE <LVL_FOREST_03, >LVL_FOREST_03
+        BYTE <LVL_FOREST_04, >LVL_FOREST_04
+        BYTE <LVL_FOREST_05, >LVL_FOREST_05
+
+ZONE_CASTLE
+        BYTE <LVL_CASTLE_01, >LVL_CASTLE_01
+
+ZONE_SPACE
+        BYTE <LVL_SPACE_01, >LVL_SPACE_01
+        BYTE <LVL_SPACE_02, >LVL_SPACE_02
+        BYTE <LVL_SPACE_03, >LVL_SPACE_03
+
+
 
