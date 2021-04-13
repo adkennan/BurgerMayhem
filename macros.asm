@@ -1,4 +1,4 @@
-__SHOW_TIMING__ = 1
+;__SHOW_TIMING__ = 1
 
 defm    time_on 
 ifdef __SHOW_TIMING__

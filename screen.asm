@@ -770,7 +770,7 @@ DRAW_SLIDER_E
 
 DRAW_SLIDER_W
 
-        lda #CH_SLIDER_E
+        lda #CH_SLIDER_W
         ora #BG_COL_1
         sta CHAR_INDEX
         

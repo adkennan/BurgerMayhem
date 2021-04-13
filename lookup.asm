@@ -194,18 +194,59 @@ FRAME_LINE_7
         BYTE 225, 228, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 BB_LINE_1
-        BYTE 0 ; Countdown until shown
+        BYTE 0 ; Speed
+        BYTE 0 ; Target
         BYTE 0 ; Y Pos
-        BYTE BB_TOP_STOP ; Stop Y Pos
-        BYTE 1 ; Sprite Y reg offset
+        BYTE 0 ; Sequence
+        BYTE 1 ; Y Reg 
+        BYTE 0, 0 ; Sequence pointer
+        BYTE 200 ; Y Start
 BB_LINE_2
-        BYTE 0, 0, BB_LET_STOP, 5
+        BYTE 0, 0, 0, 0, 3, 0, 0, 212
 BB_LINE_3
-        BYTE 0, 0, BB_TOM_STOP, 9
+        BYTE 0, 0, 0, 0, 5, 0, 0, 224
 BB_LINE_4
-        BYTE 0, 0, BB_MEAT_STOP, 13
+        BYTE 0, 0, 0, 0, 7, 0, 0, 236
 BB_LINE_5
-        BYTE 0, 0, BB_BOT_STOP, 1
+        BYTE 0, 0, 0, 0, 9, 0, 0, 248
+
+BB_IN_SEQS_LO
+        BYTE <BB_SEQ_BOT,<BB_SEQ_MEAT,<BB_SEQ_TOM,<BB_SEQ_LET,<BB_SEQ_TOP
+BB_IN_SEQS_HI
+        BYTE >BB_SEQ_BOT,>BB_SEQ_MEAT,>BB_SEQ_TOM,>BB_SEQ_LET,>BB_SEQ_TOP
+
+BB_OUT_SEQS_LO
+        BYTE <BB_SEQ_BOT_OUT,<BB_SEQ_MEAT_OUT,<BB_SEQ_TOM_OUT,<BB_SEQ_LET_OUT,<BB_SEQ_TOP_OUT
+BB_OUT_SEQS_HI
+        BYTE >BB_SEQ_BOT_OUT,>BB_SEQ_MEAT_OUT,>BB_SEQ_TOM_OUT,>BB_SEQ_LET_OUT,>BB_SEQ_TOP_OUT
+
+BB_SEQ_TOP
+        BYTE 4  ; Speed
+        BYTE 164 ; Target Y
+        BYTE 3, 152, 2, 146, 1, 142, 1, 146, 2, 152, 3, 164, 0, 0
+
+BB_SEQ_LET
+        BYTE 4, 176, 3, 170, 2, 164, 1, 158, 1, 164, 2, 170, 3, 176, 0, 0
+
+BB_SEQ_TOM
+        BYTE 4, 184, 2, 176, 1, 168, 1, 176, 2, 184, 0, 0
+
+BB_SEQ_MEAT
+        BYTE 4, 192, 2, 184, 1, 176, 1, 184, 2, 192, 0, 0
+
+BB_SEQ_BOT
+        BYTE 4, 204, 2, 196, 1, 188, 1, 196, 2, 204, 0, 0
+
+BB_SEQ_TOP_OUT
+        BYTE 3, 250, 0, 0
+BB_SEQ_LET_OUT
+        BYTE 4, 250, 0, 0
+BB_SEQ_TOM_OUT
+        BYTE 4, 250, 0, 0
+BB_SEQ_MEAT_OUT
+        BYTE 4, 250, 0, 0
+BB_SEQ_BOT_OUT
+        BYTE 5, 250, 0, 0
 
 TITLE_LINE_X
         BYTE 89,137,185,233,91,139,187,235

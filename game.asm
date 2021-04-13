@@ -508,7 +508,7 @@ TITLE
 
         jsr TITLE_INIT
 
-        jsr BIG_BURGER_INIT
+        jsr BIG_BURGER_INIT_IN
 
         print STR_COPYRIGHT, 926, COL_LBLUE, COL_BLUE
 
@@ -526,7 +526,7 @@ TITLE
 @loop
         jsr TITLE_HOLD
 
-        jsr BIG_BURGER_IN
+        jsr BIG_BURGER_RUN
 
         jsr FADE_LINE_IN
         cmp #$1
@@ -554,10 +554,23 @@ TITLE
         
         jmp @loop
 
-@loop_out
+
+@loop_out        
+
+        jsr BIG_BURGER_INIT_OUT
+
+@burger_out
+        jsr TITLE_HOLD
+
+        jsr BIG_BURGER_RUN
+
+        cmp #4
+        bne @burger_out
+
+@title_out
         jsr TITLE_OUT
         cmp #$0
-        beq @loop_out
+        beq @title_out
      
         jsr FADE_FG_OUT
         jsr CLEAR_SCREEN
@@ -567,111 +580,151 @@ TITLE
 
         rts
 
-BIG_BURGER_INIT
+BIG_BURGER_INIT_IN
+        lda #<BB_LINE_1
+        sta BB_LINE_LO
+        lda #>BB_LINE_1
+        sta BB_LINE_HI
+        
+        ldx #5
+@loop
 
-        lda #$0
-        sta BB_LINE_1
-        clc
-        adc #10
-        sta BB_LINE_2
+        dex
+
+        ; Get the pointer to the sequences.
+
+        lda BB_IN_SEQS_LO,x
+        ldy #5
+        sta (BB_LINE_LO),y
+        sta BB_SEQ_LO
+
+        iny
+        lda BB_IN_SEQS_HI,x
+        sta (BB_LINE_LO),y
+        sta BB_SEQ_HI
+
+        ; Load the speed and target of the first sequence.
+        ldy #0
+        lda (BB_SEQ_LO),y
+        sta (BB_LINE_LO),y
+        iny
+        lda (BB_SEQ_LO),y
+        sta (BB_LINE_LO),y
+
+        ; Set the sequence number
+        ldy #3
+        lda #0
+        sta (BB_LINE_LO),y
+
+        ; Load and store the start position
+        ldy #7
+        lda (BB_LINE_LO),y
+        ldy #2
+        sta (BB_LINE_LO),y
+        
+        ; Move to the next line
+        lda BB_LINE_LO
         clc 
-        adc #10
-        sta BB_LINE_3
-        clc
-        adc #10
-        sta BB_LINE_4
-        clc
-        adc #10
-        sta BB_LINE_5
+        adc #8
+        sta BB_LINE_LO
+        bcc @cc1
+        inc BB_LINE_HI        
+@cc1
 
-        ldx #1
-
-        lda #BB_TOP_START
-        sta BB_LINE_1 + 1
-
-
-        lda #BB_LET_START
-        sta BB_LINE_2 + 1
-
-
-        lda #BB_TOM_START
-        sta BB_LINE_3 + 1
-
-
-        lda #BB_MEAT_START
-        sta BB_LINE_4 + 1
-
-
-        lda #BB_BOT_START
-        sta BB_LINE_5 + 1
+        cpx #0
+        bne @loop
 
         rts
 
-BIG_BURGER_IN
+BIG_BURGER_INIT_OUT
+        lda #<BB_LINE_1
+        sta BB_LINE_LO
+        lda #>BB_LINE_1
+        sta BB_LINE_HI
+        
+        ldx #5
+@loop
+
+        dex
+
+        ; Get the pointer to the sequences.
+
+        lda BB_OUT_SEQS_LO,x
+        ldy #5
+        sta (BB_LINE_LO),y
+        sta BB_SEQ_LO
+
+        iny
+        lda BB_OUT_SEQS_HI,x
+        sta (BB_LINE_LO),y
+        sta BB_SEQ_HI
+
+        ; Load the speed and target of the first sequence.
+        ldy #0
+        lda (BB_SEQ_LO),y
+        sta (BB_LINE_LO),y
+        iny
+        lda (BB_SEQ_LO),y
+        sta (BB_LINE_LO),y
+
+        ; Set the sequence number
+        ldy #3
+        lda #0
+        sta (BB_LINE_LO),y
+        
+        ; Move to the next line
+        lda BB_LINE_LO
+        clc 
+        adc #8
+        sta BB_LINE_LO
+        bcc @cc1
+        inc BB_LINE_HI        
+@cc1
+
+        cpx #0
+        bne @loop
+
+        rts
+
+BIG_BURGER_RUN
         
         lda #130
 @wait_1
         cmp RASTER
         bne @wait_1
 
-        time_on RED
+        lda #$0
+        sta SPENA
 
-        ldy #0
-        ldx #4
+        ldx #5
         lda #<BB_LINE_1
         sta BB_LINE_LO
         lda #>BB_LINE_1
         sta BB_LINE_HI
-@loop
-        dex
 
-        ;lda (BB_LINE_LO),y
-        ;cmp #0
-        ;beq @moving
-
-        ;sec
-        ;sbc #1
-        ;sta (BB_LINE_LO),y
-        ;jmp @stopped
-
-@moving
-        ldy #1
+@loop2
+        ldy #2
         lda (BB_LINE_LO),y
-        sta BB_Y
+        sta BB_Y       
 
-        ldy #3
+        ldy #4
         lda (BB_LINE_LO),y
         tay
 
         lda BB_Y
         sta SP0X,y
-        iny
-        iny
-        sta SP0X,y
-                
-        ldy #2
-        cmp (BB_LINE_LO),y
-        beq @stopped
-
-        sec
-        sbc #2
-        ldy #1
-        sta (BB_LINE_LO),y
-
-@stopped
-
+        
         lda BB_LINE_LO
         clc
-        adc #4
+        adc #8
         sta BB_LINE_LO
-        bcc @no_inc
+        bcc @no_inc2
         inc BB_LINE_HI
-@no_inc
+@no_inc2
+        dex
 
         cpx #0
-        bne @loop
-        
-        time_on GREEN
+        bne @loop2
 
         lda #COL_YELLOW
         sta SPMC0
@@ -680,51 +733,144 @@ BIG_BURGER_IN
 
         lda #COL_ORANGE
         sta SP0COL
-        sta SP1COL
         lda #COL_GREEN
-        sta SP2COL
-        sta SP3COL
+        sta SP1COL
         lda #COL_LRED
-        sta SP4COL
-        sta SP5COL
+        sta SP2COL
         lda #COL_BROWN
-        sta SP6COL
-        sta SP7COL        
+        sta SP3COL
+        lda #COL_ORANGE        
+        sta SP4COL        
 
         lda #TSB_TOP_BUN_1
         sta SPRPTR0
-        lda #TSB_TOP_BUN_2
-        sta SPRPTR1
         lda #TSB_LETTUCE_1
-        sta SPRPTR2
-        lda #TSB_LETTUCE_2
-        sta SPRPTR3
+        sta SPRPTR1
         lda #TSB_TOMATO_1
-        sta SPRPTR4
-        lda #TSB_TOMATO_2
-        sta SPRPTR5
+        sta SPRPTR2
         lda #TSB_MEAT_1
-        sta SPRPTR6
-        lda #TSB_MEAT_2
-        sta SPRPTR7
+        sta SPRPTR3
+        lda #TSB_BOTTOM_BUN_1
+        sta SPRPTR4
 
         lda #BB_LEFT_X
         sta SP0X
-        sta SP2X
-        sta SP4X
-        sta SP6X
-        lda #BB_RIGHT_X
         sta SP1X
+        sta SP2X
         sta SP3X
-        sta SP5X
-        sta SP7X
+        sta SP4X
 
-        lda #$ff
-        sta SPENA
+        lda #$1f
         sta SPMC
+        sta XXPAND
+        sta YXPAND
+        sta SPENA
 
-        time_off
+        ; Calc next frame
+
+        lda #0
+        sta BB_HIDDEN
+
+        ldx #5
+        lda #<BB_LINE_1
+        sta BB_LINE_LO
+        lda #>BB_LINE_1
+        sta BB_LINE_HI
         
+@loop
+        dex
+
+        ldy #2
+        lda (BB_LINE_LO),y
+
+        ldy #1
+        cmp (BB_LINE_LO),y
+        beq @next_seq
+        
+        ldy #0
+
+        bcc @add_y
+        
+        sec
+        sbc (BB_LINE_LO),y
+        jmp @move
+
+@add_y        
+        clc
+        adc (BB_LINE_LO),y
+        
+@move
+
+        ldy #2
+        sta (BB_LINE_LO),y
+
+        cmp #240
+        bcc @next_line
+
+        inc BB_HIDDEN        
+
+@next_line
+        
+        lda BB_LINE_LO
+        clc
+        adc #8
+        sta BB_LINE_LO
+        bcc @no_inc
+        inc BB_LINE_HI
+@no_inc
+
+        cpx #0
+        bne @loop
+
+        jmp @done
+
+@next_seq
+
+        ldy #3
+        lda (BB_LINE_LO),y
+        clc
+        adc #2
+        sta (BB_LINE_LO),y
+        sta BB_SEQ
+
+        tay
+@load_seq
+
+        ldy #5
+        lda (BB_LINE_LO),y
+        sta BB_SEQ_LO
+        iny
+        lda (BB_LINE_LO),y
+        sta BB_SEQ_HI
+
+        ldy BB_SEQ
+        lda (BB_SEQ_LO),y
+        cmp #0
+        beq @reset_seq
+
+        ldy #0
+        sta (BB_LINE_LO),y
+
+        ldy BB_SEQ
+        iny
+        lda (BB_SEQ_LO),y
+        ldy #1
+        sta (BB_LINE_LO),y
+
+        jmp @next_line
+
+@reset_seq
+
+        lda #0
+        ldy #3
+        sta (BB_LINE_LO),y
+        sta BB_SEQ
+
+        ldy #0
+        jmp @load_seq
+
+@done        
+        lda BB_HIDDEN
         rts
 
 TITLE_INIT
@@ -1364,7 +1510,7 @@ POST_LEVEL
         cmp #CHOICE_QUIT
         bne @continue_game
 
-        lda #GS_GAME_OVER
+        lda #GS_TITLE
         sta G_GAME_STATE
         rts
 

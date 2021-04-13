@@ -63,6 +63,8 @@ STR_WHERE_TO_START
         text 'WHERE DO YOU WANT TO START?'
 
 STR_NOT_TOO_HARD
+        byte 26
+        text 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
         byte 20
         text 'DOESNT LOOK TOO HARD'
 

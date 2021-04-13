@@ -211,6 +211,11 @@ TEXT_NUM        = $E2
 
 BB_LINE_LO      = $F1
 BB_LINE_HI      = $F2
+BB_SEQ_LO       = $F3
+BB_SEQ_HI       = $F4        
 
 BB_Y            = $F0
+BB_TARGET       = $F5
+BB_SEQ          = $F6
+BB_HIDDEN       = $F7
 
