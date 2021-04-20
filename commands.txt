@@ -1,3 +1,3 @@
 Write Disk
 
-D:\Andrew\GTK3VICE-3.4-win64-r37296\c1541 -format bm,8 d64 BurgerMayhem.d64 -attach BurgerMayhem.d64 -write km.prg burgermayhem
+D:\Andrew\GTK3VICE-3.4-win64-r37296\c1541 -format bm,8 d64 burgermayhem.d64 -attach burgermayhem.d64 -write km.prg burgermayhem

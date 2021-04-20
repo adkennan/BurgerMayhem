@@ -17,8 +17,8 @@
 
 LVL_KITCHEN_01
         BYTE <MAP_KITCHEN_01, >MAP_KITCHEN_01           ; Map pointer
-        BYTE 0, 1, 0                    ; Time limit
-        BYTE 10                         ; Target
+        BYTE 5, 0, 0                    ; Time limit
+        BYTE 5                         ; Target
         BYTE 5, 3                       ; Player 1 start pos
         BYTE 7, 3                       ; Player 2 start pos
         BYTE <THEME_KITCHEN, >THEME_KITCHEN ; Theme 
@@ -26,8 +26,8 @@ LVL_KITCHEN_01
 
 LVL_KITCHEN_02
         BYTE <MAP_KITCHEN_02, >MAP_KITCHEN_02           ; Map pointer
-        BYTE 1, 0, 0                    ; Time limit
-        BYTE 10                         ; Target
+        BYTE 5, 0, 0                    ; Time limit
+        BYTE 5                         ; Target
         BYTE 10, 3                       ; Player 1 start pos
         BYTE 2, 3                       ; Player 2 start pos
         BYTE <THEME_KITCHEN, >THEME_KITCHEN ; Theme 
@@ -35,8 +35,8 @@ LVL_KITCHEN_02
 
 LVL_FOREST_01
         BYTE <MAP_FOREST_01, >MAP_FOREST_01           ; Map pointer
-        BYTE 1, 0, 0                    ; Time limit
-        BYTE 10                         ; Target
+        BYTE 5, 0, 0                    ; Time limit
+        BYTE 5                         ; Target
         BYTE 5, 4                       ; Player 1 start pos
         BYTE 7, 4                       ; Player 2 start pos
         BYTE <THEME_FOREST, >THEME_FOREST ; Theme 
@@ -44,8 +44,8 @@ LVL_FOREST_01
 
 LVL_FOREST_02
         BYTE <MAP_FOREST_02, >MAP_FOREST_02           ; Map pointer
-        BYTE 1, 0, 0                    ; Time limit
-        BYTE 10                         ; Target
+        BYTE 5, 0, 0                    ; Time limit
+        BYTE 5                         ; Target
         BYTE 6, 3                       ; Player 1 start pos
         BYTE 7, 3                       ; Player 2 start pos
         BYTE <THEME_FOREST, >THEME_FOREST ; Theme 
@@ -53,8 +53,8 @@ LVL_FOREST_02
 
 LVL_FOREST_03
         BYTE <MAP_FOREST_03, >MAP_FOREST_03           ; Map pointer
-        BYTE 1, 0, 0                    ; Time limit
-        BYTE 10                         ; Target
+        BYTE 5, 0, 0                    ; Time limit
+        BYTE 5                         ; Target
         BYTE 2, 3                       ; Player 1 start pos
         BYTE 10, 3                       ; Player 2 start pos
         BYTE <THEME_FOREST, >THEME_FOREST ; Theme 
@@ -62,8 +62,8 @@ LVL_FOREST_03
 
 LVL_FOREST_04
         BYTE <MAP_FOREST_04, >MAP_FOREST_04           ; Map pointer
-        BYTE 1, 0, 0                    ; Time limit
-        BYTE 10                         ; Target
+        BYTE 5, 0, 0                    ; Time limit
+        BYTE 5                         ; Target
         BYTE 5, 3                       ; Player 1 start pos
         BYTE 7, 4                       ; Player 2 start pos
         BYTE <THEME_FOREST, >THEME_FOREST ; Theme 
@@ -71,8 +71,8 @@ LVL_FOREST_04
 
 LVL_FOREST_05
         BYTE <MAP_FOREST_05, >MAP_FOREST_05           ; Map pointer
-        BYTE 1, 0, 0                    ; Time limit
-        BYTE 10                         ; Target
+        BYTE 5, 0, 0                    ; Time limit
+        BYTE 5                         ; Target
         BYTE 9, 6                       ; Player 1 start pos
         BYTE 4, 6                       ; Player 2 start pos
         BYTE <THEME_FOREST, >THEME_FOREST ; Theme 
@@ -80,8 +80,8 @@ LVL_FOREST_05
 
 LVL_CASTLE_01
         BYTE <MAP_CASTLE_01, >MAP_CASTLE_01           ; Map pointer
-        BYTE 1, 0, 0                    ; Time limit
-        BYTE 10                         ; Target
+        BYTE 5, 0, 0                    ; Time limit
+        BYTE 5                         ; Target
         BYTE 6, 1                       ; Player 1 start pos
         BYTE 9, 6                       ; Player 2 start pos
         BYTE <THEME_CASTLE, >THEME_CASTLE ; Theme 
@@ -89,8 +89,8 @@ LVL_CASTLE_01
 
 LVL_SPACE_01
         BYTE <MAP_SPACE_01, >MAP_SPACE_01           ; Map pointer
-        BYTE 1, 0, 0                    ; Time limit
-        BYTE 10                         ; Target
+        BYTE 5, 0, 0                    ; Time limit
+        BYTE 5                         ; Target
         BYTE 2, 3                       ; Player 1 start pos
         BYTE 2, 4                       ; Player 2 start pos
         BYTE <THEME_SPACE, >THEME_SPACE ; Theme 
@@ -98,8 +98,8 @@ LVL_SPACE_01
 
 LVL_SPACE_02
         BYTE <MAP_SPACE_02, >MAP_SPACE_02           ; Map pointer
-        BYTE 1, 0, 0                    ; Time limit
-        BYTE 10                         ; Target
+        BYTE 5, 0, 0                    ; Time limit
+        BYTE 5                         ; Target
         BYTE 9, 6                       ; Player 1 start pos
         BYTE 3, 2                      ; Player 2 start pos
         BYTE <THEME_SPACE, >THEME_SPACE ; Theme 
@@ -107,8 +107,8 @@ LVL_SPACE_02
 
 LVL_SPACE_03
         BYTE <MAP_SPACE_03, >MAP_SPACE_03           ; Map pointer
-        BYTE 1, 0, 0                    ; Time limit
-        BYTE 10                         ; Target
+        BYTE 5, 0, 0                    ; Time limit
+        BYTE 5                         ; Target
         BYTE 1, 2                       ; Player 1 start pos
         BYTE 10, 1                      ; Player 2 start pos
         BYTE <THEME_SPACE, >THEME_SPACE ; Theme 

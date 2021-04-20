@@ -271,8 +271,8 @@ INIT_LEVEL
         sta L_BURGERS_REQ
         lda #$0
         sta L_BURGER_COUNT_LO
-        sta L_BURGER_COUNT_HI
         sta L_BURGER_COUNT
+        sta L_BURGER_COUNT_HI
 
         lda #SB_0               ; Reset counter display
         ldy #SL_SPRPTR6
@@ -564,7 +564,7 @@ TITLE
 
         jsr BIG_BURGER_RUN
 
-        cmp #4
+        cmp #3
         bne @burger_out
 
 @title_out
@@ -1387,6 +1387,7 @@ POST_LEVEL
         ldy #LVL_TARGET
         lda (L_CURR_LEVEL_LO),y
         cmp L_BURGER_COUNT
+        beq @success
         bcc @success
 
         print STR_BETTER_LUCK, 809, COL_LBLUE, COL_BLUE
@@ -1522,6 +1523,7 @@ POST_LEVEL
         ldy #LVL_TARGET
         lda (L_CURR_LEVEL_LO),y
         cmp L_BURGER_COUNT
+        beq @next_level
         bcc @next_level
 
         rts ; Retry current level
